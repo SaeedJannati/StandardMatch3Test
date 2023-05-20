@@ -7,7 +7,7 @@ namespace Match3.General
     {
         [field: SerializeField] public int rowCount { get; private set; }
         [field: SerializeField] public int coloumnCount { get; private set; }
-        [field: SerializeField] public int colourCount { get; private set; }
+        [field: SerializeField,Min(2)] public int colourCount { get; private set; }
     }
 }
 

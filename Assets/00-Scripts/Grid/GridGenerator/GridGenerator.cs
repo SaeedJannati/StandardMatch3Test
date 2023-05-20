@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Zenject;
 
 namespace  Match3.General
@@ -15,6 +12,12 @@ namespace  Match3.General
 
         #endregion
 
+        #region Properties
+
+        public int colourCount => _model.colourCount;
+        
+
+        #endregion
         #region Methods
         
         public TilesGrid CreateGrid()

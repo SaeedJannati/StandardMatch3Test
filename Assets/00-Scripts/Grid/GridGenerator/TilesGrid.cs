@@ -9,7 +9,7 @@ namespace Match3.General
     {
         #region Fields
 
-        private List<int> elements;
+        private List<GridElement> elements;
 
         #endregion
 
@@ -19,7 +19,7 @@ namespace Match3.General
         [field: SerializeField] public int columns { get; private set; }
         public int count => rows * columns;
 
-        public int this[int row, int col]
+        public GridElement this[int row, int col]
         {
             get
             {
@@ -28,7 +28,7 @@ namespace Match3.General
                 {
                     Debug.LogError(
                         $"Subscript out of range|Index:{index},row:{row},col:{col},count:{elements.Count},width:{columns},height:{rows}");
-                    return 0;
+                    return default;
                 }
 
                 return this.elements[index];
@@ -46,7 +46,7 @@ namespace Match3.General
             }
         }
 
-        public int this[int index]
+        public GridElement this[int index]
         {
             get => elements[index];
             set => elements[index] = value;
@@ -93,10 +93,20 @@ namespace Match3.General
         {
             rows = aRows;
             columns = aCols;
-            elements = new(aRows * aCols);
-            for (int i = 0; i < count; i++)
+            GenerateElements();
+
+        }
+
+        void GenerateElements()
+        {
+            elements = new(rows * columns);
+            for (int i = 0; i < rows; i++)
             {
-                elements.Add(0);
+                for (int j = 0; j < columns; j++)
+                {
+                    var element = new GridElement(-1,i,j);
+                    elements.Add(element);
+                }
             }
         }
 
@@ -113,12 +123,64 @@ namespace Match3.General
             {
                 for (int j = 0; j < columns; j++)
                 {
-                    outPut += $"{this[i, j]},";
+                    outPut += $"{this[i, j].value},";
                 }
                 outPut += "\n";
             }
             outPut += "]";
             return outPut;
+        }
+
+        #endregion
+    }
+
+    [Serializable]
+    public class GridElement
+    {
+        #region Fields
+
+        public int value { get; private set; }
+        public int row{ get; private set; }
+        public int col{ get; private set; }
+        public bool needCheck{ get; private set; }
+        #endregion
+
+        #region Constructors
+
+        public GridElement(int aValue, int aRow, int aCol, bool aNeedCheck = false)
+        {
+            value = aValue;
+            row = aRow;
+            col = aCol;
+            needCheck = aNeedCheck;
+        }
+        #endregion
+
+        #region Methods
+
+        public void SetValue(int aValue,bool aNeedCheck=true)
+        {
+            value = aValue;
+            needCheck = aNeedCheck;
+        }
+
+
+        #endregion
+
+        #region Operators
+
+        public static bool operator ==(GridElement a, GridElement b)
+        {
+            if (a is null)
+                return false;
+            if (b is null)
+                return false;
+            return a.value==b.value;
+        }
+
+        public static bool operator !=(GridElement a, GridElement b)
+        {
+            return !(a == b);
         }
 
         #endregion
