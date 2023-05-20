@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Match3.Auxiliary;
 using Match3.EventController;
+using Newtonsoft.Json;
 using UnityEngine;
 using Zenject;
 using Random = UnityEngine.Random;
@@ -39,6 +40,7 @@ namespace Match3.General
             _eventController.onInputEnable.Add(OnInputEnable);
             _eventController.onAfterMatch.Add(OnAfterMatch);
             _eventController.onAfterDrop.Add(OnAfterDrop);
+            _eventController.onFillEmptySlotsRequest.Add(OnFillEmptySlotsRequest);
         }
 
         public void UnregisterFromEvents()
@@ -51,6 +53,17 @@ namespace Match3.General
             _eventController.onInputEnable.Remove(OnInputEnable);
             _eventController.onAfterMatch.Remove(OnAfterMatch);
             _eventController.onAfterDrop.Remove(OnAfterDrop);
+            _eventController.onFillEmptySlotsRequest.Remove(OnFillEmptySlotsRequest);
+        }
+
+        private void OnFillEmptySlotsRequest()
+        {
+            var emptySlots = _grid.elements.Where(i => i.value == -1);
+            foreach (var element in emptySlots)
+            {
+                SetElementAmount(element.row, element.col);
+                _eventController.onElementValueChange.Trigger((element.row,element.col,element.value));
+            }
         }
 
         private void OnAfterDrop()

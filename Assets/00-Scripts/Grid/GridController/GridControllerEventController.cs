@@ -13,5 +13,6 @@ namespace Match3.General
         public readonly ListEvent<bool> onInputEnable = new();
         public readonly SimpleEvent onAfterMatch=new();
         public readonly SimpleEvent onAfterDrop = new();
+        public readonly SimpleEvent onFillEmptySlotsRequest=new();
     }
 }

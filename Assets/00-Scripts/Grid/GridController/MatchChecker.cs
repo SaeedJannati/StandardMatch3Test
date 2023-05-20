@@ -35,12 +35,10 @@ namespace Match3.General
 
         public void RegisterToEvents()
         {
-         
         }
 
         public void UnregisterFromEvents()
         {
-      
         }
 
         public void CheckNeedToCheckElementsForMatch()
@@ -49,34 +47,40 @@ namespace Match3.General
             CheckElementsForMatch(elementsToCheck);
         }
 
-        void CheckElementsForMatch(List<TileGridElement> elements)
+        bool CheckElementsForMatch(List<TileGridElement> elements)
         {
             var matched = false;
             foreach (var element in elements)
             {
-                matched |=    CheckMatchForElement(element);
+                matched |= CheckMatchForElement(element);
             }
-            if(!matched)
-                return;
+
+            if (!matched)
+                return false;
             _gridEventController.onAfterMatch.Trigger();
+            return true;
         }
 
         public void CheckFilledElements()
         {
-            var elementsToCheck = _grid.elements.Where(i => i.value!=-1).ToList();
-            CheckElementsForMatch(elementsToCheck);
+            var elementsToCheck = _grid.elements.Where(i => i.value != -1).ToList();
+            if (CheckElementsForMatch(elementsToCheck))
+            {
+                return;
+            }
+            _gridEventController.onFillEmptySlotsRequest.Trigger();
         }
 
         bool CheckMatchForElement(TileGridElement element)
         {
-            if(!IsPartOfMatch(element.row,element.col))
+            if (!IsPartOfMatch(element.row, element.col))
                 return false;
-            var elementsToFade = 
+            var elementsToFade =
                 GetMatchedElements(element.row, element.col);
             foreach (var aElement in elementsToFade)
             {
-                aElement.SetValue(-1,false);
-                _gridEventController.onElementValueChange.Trigger((aElement.row,aElement.col,aElement.value));
+                aElement.SetValue(-1, false);
+                _gridEventController.onElementValueChange.Trigger((aElement.row, aElement.col, aElement.value));
             }
 
             return true;
@@ -107,7 +111,6 @@ namespace Match3.General
 
         bool IsPartOfHorizMatch(int row, int col)
         {
-  
             var minCol = col - 2 >= 0 ? col - 2 : 0;
             for (int i = minCol; i <= col; i++)
             {
@@ -120,7 +123,7 @@ namespace Match3.General
             return false;
         }
 
-        List<TileGridElement> GetMatchedElements(int row,int col)
+        List<TileGridElement> GetMatchedElements(int row, int col)
         {
             var outPut = new List<TileGridElement>();
             outPut = outPut.Concat(GetHorizMatchElements(row, col)).ToList();
@@ -140,10 +143,11 @@ namespace Match3.General
                 if (_grid[row, i] == _grid[row, i + 1] && _grid[row, i] == _grid[row, i + 2])
                 {
                     outPut.Add(_grid[row, i]);
-                    outPut.Add(_grid[row, i + 1] );
+                    outPut.Add(_grid[row, i + 1]);
                     outPut.Add(_grid[row, i + 2]);
                 }
             }
+
             return outPut;
         }
 
@@ -158,19 +162,19 @@ namespace Match3.General
                 if (_grid[i, col] == _grid[i + 1, col] && _grid[i, col] == _grid[i + 2, col])
                 {
                     outPut.Add(_grid[i, col]);
-                    outPut.Add(_grid[i + 1, col] );
+                    outPut.Add(_grid[i + 1, col]);
                     outPut.Add(_grid[i + 2, col]);
                 }
             }
 
             return outPut;
         }
+
         public void SetGrid(TilesGrid grid)
         {
-            _grid =grid;
+            _grid = grid;
         }
-        #endregion
 
-     
+        #endregion
     }
 }
