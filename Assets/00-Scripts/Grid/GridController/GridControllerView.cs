@@ -27,13 +27,21 @@ namespace Match3.General
         void CreateGrid()
         {
             _eventController.onCreateGridRequest.Trigger();
+            PrintGrid();
         }
 
         [Button]
         void PrintGrid()
         {
             var grid=_eventController.onGridRequest.GetFirstResult();
-            GameLogger.Log(grid.ToString(),GameLogger.Colours.beige);
+            GameLogger.Log(grid.ToString());
+        }
+
+        [Button]
+        void Shuffle()
+        {
+            _eventController.onShuffleRequest.Trigger();
+            PrintGrid();
         }
 
         #endregion

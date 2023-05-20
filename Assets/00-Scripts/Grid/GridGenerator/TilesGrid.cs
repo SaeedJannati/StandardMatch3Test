@@ -9,7 +9,7 @@ namespace Match3.General
     {
         #region Fields
 
-        private List<GridElement> elements;
+        public List<TileGridElement> elements { get; private set; }
 
         #endregion
 
@@ -19,7 +19,7 @@ namespace Match3.General
         [field: SerializeField] public int columns { get; private set; }
         public int count => rows * columns;
 
-        public GridElement this[int row, int col]
+        public TileGridElement this[int row, int col]
         {
             get
             {
@@ -46,7 +46,7 @@ namespace Match3.General
             }
         }
 
-        public GridElement this[int index]
+        public TileGridElement this[int index]
         {
             get => elements[index];
             set => elements[index] = value;
@@ -104,7 +104,7 @@ namespace Match3.General
             {
                 for (int j = 0; j < columns; j++)
                 {
-                    var element = new GridElement(-1,i,j);
+                    var element = new TileGridElement(-1,i,j);
                     elements.Add(element);
                 }
             }
@@ -135,7 +135,7 @@ namespace Match3.General
     }
 
     [Serializable]
-    public class GridElement
+    public class TileGridElement
     {
         #region Fields
 
@@ -147,7 +147,7 @@ namespace Match3.General
 
         #region Constructors
 
-        public GridElement(int aValue, int aRow, int aCol, bool aNeedCheck = false)
+        public TileGridElement(int aValue, int aRow, int aCol, bool aNeedCheck = false)
         {
             value = aValue;
             row = aRow;
@@ -169,7 +169,7 @@ namespace Match3.General
 
         #region Operators
 
-        public static bool operator ==(GridElement a, GridElement b)
+        public static bool operator ==(TileGridElement a, TileGridElement b)
         {
             if (a is null)
                 return false;
@@ -178,7 +178,7 @@ namespace Match3.General
             return a.value==b.value;
         }
 
-        public static bool operator !=(GridElement a, GridElement b)
+        public static bool operator !=(TileGridElement a, TileGridElement b)
         {
             return !(a == b);
         }

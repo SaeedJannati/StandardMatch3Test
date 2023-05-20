@@ -7,9 +7,9 @@ namespace Match3.Installers
     public class PlaySceneMonoBehavioursInstaller : MonoInstaller
     {
         #region Fields
-
+        [SerializeField] private PlaySceneContextModel _model;
         [SerializeField] private GridControllerView _gridControllerView;
-
+     
         #endregion
 
         #region Methods
@@ -18,6 +18,14 @@ namespace Match3.Installers
         {
             BindInstallers();
             BindMonoBehaviours();
+            BindFactories();
+        }
+
+        private void BindFactories()
+        {
+            Container.BindFactory
+                    <int, int, GridControllerEventController, GridElement, GridElement.Factory>()
+                .FromComponentInNewPrefab(_model.gridElementPrefab);
         }
 
         void BindMonoBehaviours()

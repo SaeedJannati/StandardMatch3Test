@@ -3,27 +3,30 @@ using NaughtyAttributes.Test;
 using UnityEngine;
 using Zenject;
 
-public class PlaySceneGeneralInstaller : Installer<PlaySceneGeneralInstaller>
+namespace Match3.Installers
 {
-    #region Methods
-
-    public override void InstallBindings()
+    public class PlaySceneGeneralInstaller : Installer<PlaySceneGeneralInstaller>
     {
-        InstallGridClasses();
-        InstallEventControllers();
-    }
+        #region Methods
 
-    private void InstallEventControllers()
-    {
-        Container.BindInterfacesAndSelfTo<GridControllerEventController>().AsSingle();
-    }
+        public override void InstallBindings()
+        {
+            InstallGridClasses();
+            InstallEventControllers();
+        }
 
-    void InstallGridClasses()
-    {
-        Container.BindInterfacesAndSelfTo<GridGenerator>().AsSingle();
-        Container.BindInterfacesAndSelfTo<GridControllerLogic>().AsSingle();
-    }
+        private void InstallEventControllers()
+        {
+            Container.BindInterfacesAndSelfTo<GridControllerEventController>().AsSingle();
+        }
 
-    #endregion
-  
+        void InstallGridClasses()
+        {
+            Container.BindInterfacesAndSelfTo<GridGenerator>().AsSingle();
+            Container.BindInterfacesAndSelfTo<GridControllerLogic>().AsSingle();
+        }
+
+        #endregion
+
+    }
 }

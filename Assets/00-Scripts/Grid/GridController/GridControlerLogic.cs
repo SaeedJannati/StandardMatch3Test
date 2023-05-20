@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Match3.Auxiliary;
 using Match3.EventController;
@@ -35,6 +36,7 @@ namespace Match3.General
             _eventController.onDispose.Add(Dispose);
             _eventController.onCreateGridRequest.Add(OnGridCreateRequest);
             _eventController.onGridRequest.Add(OnGridRequest);
+            _eventController.onShuffleRequest.Add(OnShuffleRequest);
         }
 
         public void UnregisterFromEvents()
@@ -42,6 +44,12 @@ namespace Match3.General
             _eventController.onDispose.Remove(Dispose);
             _eventController.onCreateGridRequest.Remove(OnGridCreateRequest);
             _eventController.onGridRequest.Remove(OnGridRequest);
+            _eventController.onShuffleRequest.Remove(OnShuffleRequest);
+        }
+
+        private void OnShuffleRequest()
+        {
+            ShuffleGrid();
         }
 
         private TilesGrid OnGridRequest() => _grid;
@@ -52,29 +60,30 @@ namespace Match3.General
             FillTheGrid();
         }
 
-        async void FillTheGrid()
+        void FillTheGrid()
         {
             var count = _grid.count;
             for (int i = 0; i < _grid.rows; i++)
             {
                 for (int j = 0; j < _grid.columns; j++)
                 {
-                    await SetElementAmount(i, j);
+                    SetElementAmount(i, j);
                 }
             }
         }
 
-        async Task SetElementAmount(int row, int col)
+        void SetElementAmount(int row, int col)
         {
             var amount = GetRandomAmount();
-            _grid[row,col].SetValue(amount,false);
-            await Task.Delay(1);
+            _grid[row, col].SetValue(amount, false);
             if (IsPartOfMatch(row, col))
                 SetElementAmount(row, col);
         }
 
         bool IsPartOfMatch(int row, int col)
         {
+            if (_grid[row, col].value == -1)
+                return false;
             if (IsPartOfHorizMatch(row, col))
                 return true;
             return IsPartOfVerticalMatch(row, col);
@@ -117,6 +126,16 @@ namespace Match3.General
             _gridGenerator?.Dispose();
             _eventController.Dispose();
             GC.SuppressFinalize(this);
+        }
+
+        void ShuffleGrid()
+        {
+            var values = _grid.elements.Select(i => i.value).ToList();
+            values.Shuffle();
+            for (int i = 0, e = _grid.count; i < e; i++)
+            {
+                _grid[i].SetValue(values[i], false);
+            }
         }
 
         #endregion
