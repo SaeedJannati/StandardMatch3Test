@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Match3.Auxiliary;
@@ -51,7 +52,43 @@ namespace Match3.General
 
         private void OnSwipeRequest((int row, int col, Direction dir) info)
         {
-          GameLogger.Log($"Swipe,row{info.row},col:{info.col},dir:{info.dir.ToString()}",GameLogger.Colours.lightBlue);
+            var element = new Vector2Int(info.row, info.col);
+            element += GetDeltaPos(info.dir);
+            if (!IsValidElement(element))
+            {
+                return;
+            }
+
+            var value = _grid[info.row, info.col].value;
+            _grid[info.row, info.col].SetValue(_grid[element.x,element.y].value);
+            _grid[element.x,element.y].SetValue(value);
+            _eventController.onElementValueChange.Trigger((info.row, info.col, _grid[info.row, info.col].value));
+            _eventController.onElementValueChange.Trigger((element.x, element.y, _grid[element.x,  element.y].value));
+        }
+
+        bool IsValidElement(Vector2Int coord)
+        {
+            if (coord.x < 0)
+                return false;
+            if (coord.x > _grid.rows-1)
+                return false;
+            if (coord.y < 0)
+                return false;
+            if (coord.y > _grid.columns - 1)
+                return false;
+            return true;
+        }
+
+        Vector2Int GetDeltaPos(Direction dir)
+        {
+            return dir switch
+            {
+                Direction.Left => new Vector2Int(0, -1),
+                Direction.Right => new Vector2Int(0, 1),
+                Direction.Up => new Vector2Int(-1, 0),
+                Direction.Down => new Vector2Int(1, 0),
+                _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+            };
         }
 
         private void OnShuffleRequest()

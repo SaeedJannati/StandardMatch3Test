@@ -1,3 +1,4 @@
+using System;
 using Match3.Auxiliary;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -13,6 +14,11 @@ namespace Match3.General
         #endregion
 
         #region Unity actions
+
+        private void Start()
+        {
+            CreateGrid();
+        }
 
         private void OnDestroy()
         {

@@ -1,10 +1,11 @@
 using Match3.Auxiliary;
+using Match3.EventController;
 using UnityEngine;
 using Zenject;
 
 namespace Match3.General
 {
-    public class GridElement : MonoBehaviour
+    public class GridElement : MonoBehaviour, IEventListener
     {
         #region Fields
 
@@ -12,6 +13,7 @@ namespace Match3.General
         [SerializeField] private SpriteRenderer _renderer;
 
         [Inject] private GridControllerEventController _gridEventController;
+        [Inject] private GridGeneratorViewModel _model;
         public int row;
         public int col;
 
@@ -22,11 +24,13 @@ namespace Match3.General
         private void Start()
         {
             _swipeable.onSwipe += OnSwipe;
+            RegisterToEvents();
         }
 
         private void OnDestroy()
         {
             _swipeable.onSwipe -= OnSwipe;
+            UnregisterFromEvents();
         }
 
         #endregion
@@ -50,11 +54,32 @@ namespace Match3.General
             _gridEventController.onSwipeRequest.Trigger((row, col, direction));
         }
 
+        public void RegisterToEvents()
+        {
+            _gridEventController.onElementValueChange.Add(OnElementValueChange);
+        }
+
+        public void UnregisterFromEvents()
+        {
+            _gridEventController.onElementValueChange.Remove(OnElementValueChange);
+        }
+
+        private void OnElementValueChange((int row, int col,int value) info)
+        {
+            if (info.col != col)
+                return;
+            if(info.row!=row)
+                return;
+            var colour = _model.colours[info.value];
+            SetColour(colour);
+        }
+
         #endregion
 
         #region Factory
 
-        public class Factory : PlaceholderFactory<int, int, GridControllerEventController, GridElement>
+        public class Factory : PlaceholderFactory<int, int, GridControllerEventController, GridGeneratorViewModel,
+            GridElement>
         {
         }
 

@@ -42,11 +42,11 @@ namespace Match3.General
 
         void CreateGridElement(int row, int col,int value)
         {
-            var element = _elementFactory.Create(row, col, _gridEventController);
+            var element = _elementFactory.Create(row, col,_gridEventController,_model);
             var colour = _model.colours[value];
             element.SetColour(colour);
             element.transform.SetParent(transform);
-            element.transform.localPosition = new Vector3(col, row, 0);
+            element.transform.localPosition = new Vector3(col, -row, 0);
         }
 
         void RegisterToEvents()
@@ -78,7 +78,7 @@ namespace Match3.General
                 }
             }
 
-            var pos = new Vector3(-cols / 2.0f,-rows/2.0f);
+            var pos = new Vector3(-cols / 2.0f,rows/2.0f);
             transform.position = pos;
         }
 
