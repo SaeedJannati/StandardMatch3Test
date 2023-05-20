@@ -1,4 +1,4 @@
-using System;
+using System.Collections;
 using Match3.Auxiliary;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -9,14 +9,16 @@ namespace Match3.General
     public class GridControllerView : MonoBehaviour
     {
         #region Fields
+
         [Inject] private GridControllerEventController _eventController;
 
         #endregion
 
         #region Unity actions
 
-        private void Start()
+        private IEnumerator Start()
         {
+            yield return null;
             CreateGrid();
         }
 
@@ -39,7 +41,7 @@ namespace Match3.General
         [Button]
         void PrintGrid()
         {
-            var grid=_eventController.onGridRequest.GetFirstResult();
+            var grid = _eventController.onGridRequest.GetFirstResult();
             GameLogger.Log(grid.ToString());
         }
 

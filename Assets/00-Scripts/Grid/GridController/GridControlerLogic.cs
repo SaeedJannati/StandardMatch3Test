@@ -19,7 +19,7 @@ namespace Match3.General
         [Inject] private GridControllerEventController _eventController;
         [Inject] private GridControllerView _view;
         [Inject] private GridGenerator _gridGenerator;
-
+        [Inject] private MatchChecker _matchChecker;
         private TilesGrid _grid;
 
         #endregion
@@ -64,6 +64,8 @@ namespace Match3.General
             _grid[element.x,element.y].SetValue(value);
             _eventController.onElementValueChange.Trigger((info.row, info.col, _grid[info.row, info.col].value));
             _eventController.onElementValueChange.Trigger((element.x, element.y, _grid[element.x,  element.y].value));
+            
+          _matchChecker.CheckNeedToCheckElementsForMatch();
         }
 
         bool IsValidElement(Vector2Int coord)
@@ -101,6 +103,7 @@ namespace Match3.General
         private void OnGridCreateRequest()
         {
             _grid = _gridGenerator.CreateGrid();
+            _matchChecker.SetGrid(_grid);
             FillTheGrid();
             _eventController.onGridCreated?.Trigger();
         }
@@ -121,46 +124,11 @@ namespace Match3.General
         {
             var amount = GetRandomAmount();
             _grid[row, col].SetValue(amount, false);
-            if (IsPartOfMatch(row, col))
+            if (_matchChecker.IsPartOfMatch(row, col))
                 SetElementAmount(row, col);
         }
 
-        bool IsPartOfMatch(int row, int col)
-        {
-            if (_grid[row, col].value == -1)
-                return false;
-            if (IsPartOfHorizMatch(row, col))
-                return true;
-            return IsPartOfVerticalMatch(row, col);
-        }
-
-        bool IsPartOfVerticalMatch(int row, int col)
-        {
-            var minRow = row - 2 >= 0 ? row - 2 : 0;
-            for (int i = minRow; i <= row; i++)
-            {
-                if (i + 2 >= _grid.rows)
-                    return false;
-                if (_grid[i, col] == _grid[i + 1, col] && _grid[i, col] == _grid[i + 2, col])
-                    return true;
-            }
-
-            return false;
-        }
-
-        bool IsPartOfHorizMatch(int row, int col)
-        {
-            var minCol = col - 2 >= 0 ? col - 2 : 0;
-            for (int i = minCol; i <= col; i++)
-            {
-                if (i + 2 >= _grid.columns)
-                    return false;
-                if (_grid[row, i] == _grid[row, i + 1] && _grid[row, i] == _grid[row, i + 2])
-                    return true;
-            }
-
-            return false;
-        }
+     
 
         int GetRandomAmount() => Random.Range(0, _gridGenerator.colourCount);
 
@@ -168,8 +136,9 @@ namespace Match3.General
         public void Dispose()
         {
             UnregisterFromEvents();
-            _gridGenerator?.Dispose();
+            _gridGenerator.Dispose();
             _eventController.Dispose();
+            _matchChecker.Dispose();
             GC.SuppressFinalize(this);
         }
 

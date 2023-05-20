@@ -64,13 +64,16 @@ namespace Match3.General
             _gridEventController.onElementValueChange.Remove(OnElementValueChange);
         }
 
-        private void OnElementValueChange((int row, int col,int value) info)
+        private void OnElementValueChange((int row, int col, int value) info)
         {
             if (info.col != col)
                 return;
-            if(info.row!=row)
+            if (info.row != row)
                 return;
-            var colour = _model.colours[info.value];
+            var colour = Color.black;
+            if (info.value >= 0)
+                colour =_model.colours[info.value];
+
             SetColour(colour);
         }
 

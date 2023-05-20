@@ -18,12 +18,13 @@ namespace Match3.Installers
         private void InstallEventControllers()
         {
             Container.BindInterfacesAndSelfTo<GridControllerEventController>().AsSingle();
+            Container.BindInterfacesAndSelfTo<MatchCheckerEventController>().AsSingle();
         }
-
         void InstallGridClasses()
         {
             Container.BindInterfacesAndSelfTo<GridGenerator>().AsSingle();
             Container.BindInterfacesAndSelfTo<GridControllerLogic>().AsSingle();
+            Container.BindInterfacesAndSelfTo<MatchChecker>().AsSingle();
         }
 
         #endregion
