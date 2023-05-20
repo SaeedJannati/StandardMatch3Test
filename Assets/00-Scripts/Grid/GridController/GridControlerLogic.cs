@@ -37,6 +37,7 @@ namespace Match3.General
             _eventController.onCreateGridRequest.Add(OnGridCreateRequest);
             _eventController.onGridRequest.Add(OnGridRequest);
             _eventController.onShuffleRequest.Add(OnShuffleRequest);
+            _eventController.onSwipeRequest.Add(OnSwipeRequest);
         }
 
         public void UnregisterFromEvents()
@@ -45,6 +46,12 @@ namespace Match3.General
             _eventController.onCreateGridRequest.Remove(OnGridCreateRequest);
             _eventController.onGridRequest.Remove(OnGridRequest);
             _eventController.onShuffleRequest.Remove(OnShuffleRequest);
+            _eventController.onSwipeRequest.Remove(OnSwipeRequest);
+        }
+
+        private void OnSwipeRequest((int row, int col, Direction dir) info)
+        {
+          GameLogger.Log($"Swipe,row{info.row},col:{info.col},dir:{info.dir.ToString()}",GameLogger.Colours.lightBlue);
         }
 
         private void OnShuffleRequest()
@@ -58,6 +65,7 @@ namespace Match3.General
         {
             _grid = _gridGenerator.CreateGrid();
             FillTheGrid();
+            _eventController.onGridCreated?.Trigger();
         }
 
         void FillTheGrid()

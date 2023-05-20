@@ -47,7 +47,7 @@ namespace Match3.General
 
         private void OnSwipe(Direction direction)
         {
-            GameLogger.Log(direction.ToString(), GameLogger.Colours.lightBlue);
+            _gridEventController.onSwipeRequest.Trigger((row, col, direction));
         }
 
         #endregion

@@ -34,6 +34,28 @@ namespace Match3.Auxiliary
             }
         }
         #endregion
+        #region Transfrom
+
+        public static void ClearChildren(this Transform transform, int fromIndex = 0)
+        {
+            var childCount = transform.childCount;
+            if (childCount == 0)
+                return;
+            for (int i = childCount - 1; i >= fromIndex; i--)
+            {
+                GameObject.Destroy(transform.GetChild(i).gameObject);
+            }
+        }
+
+        #endregion
+
+        #region GameObject
+
+        public static void ClearChildren(this GameObject go, int fromIndex = 0)
+        {
+            go.transform.ClearChildren(fromIndex);
+        }
+        #endregion
     }
 }
 

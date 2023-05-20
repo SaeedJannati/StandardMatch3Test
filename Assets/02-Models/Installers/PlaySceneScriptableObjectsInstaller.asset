@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: PlaySceneScriptableObjectsInstaller
   m_EditorClassIdentifier: 
   gridGeneratorModel: {fileID: 11400000, guid: 0308558c177c39f41874d2694dc83d2b, type: 2}
+  gridGeneratorViewModel: {fileID: 11400000, guid: a04fb7e726b37294e885feb343462cc1, type: 2}
