@@ -59,20 +59,31 @@ namespace Match3.General
                 return;
             }
 
-            var value = _grid[info.row, info.col].value;
-            _grid[info.row, info.col].SetValue(_grid[element.x,element.y].value);
-            _grid[element.x,element.y].SetValue(value);
+            SwipeElements(new Vector2Int(info.row, info.col), element);
+            if (!_matchChecker.IsPartOfMatch(info.row, info.col) && !_matchChecker.IsPartOfMatch(element.x, element.y))
+            {
+                SwipeElements(new Vector2Int(info.row, info.col), element);
+                return;
+            }
+
             _eventController.onElementValueChange.Trigger((info.row, info.col, _grid[info.row, info.col].value));
-            _eventController.onElementValueChange.Trigger((element.x, element.y, _grid[element.x,  element.y].value));
-            
-          _matchChecker.CheckNeedToCheckElementsForMatch();
+            _eventController.onElementValueChange.Trigger((element.x, element.y, _grid[element.x, element.y].value));
+
+            _matchChecker.CheckNeedToCheckElementsForMatch();
+        }
+
+        void SwipeElements(Vector2Int firstCoords, Vector2Int secondCoords)
+        {
+            var value = _grid[firstCoords.x, firstCoords.y].value;
+            _grid[firstCoords.x, firstCoords.y].SetValue(_grid[secondCoords.x, secondCoords.y].value);
+            _grid[secondCoords.x, secondCoords.y].SetValue(value);
         }
 
         bool IsValidElement(Vector2Int coord)
         {
             if (coord.x < 0)
                 return false;
-            if (coord.x > _grid.rows-1)
+            if (coord.x > _grid.rows - 1)
                 return false;
             if (coord.y < 0)
                 return false;
@@ -128,7 +139,6 @@ namespace Match3.General
                 SetElementAmount(row, col);
         }
 
-     
 
         int GetRandomAmount() => Random.Range(0, _gridGenerator.colourCount);
 
