@@ -25,6 +25,7 @@ namespace Match3.Installers
             Container.BindInterfacesAndSelfTo<GridGenerator>().AsSingle();
             Container.BindInterfacesAndSelfTo<GridControllerLogic>().AsSingle();
             Container.BindInterfacesAndSelfTo<MatchChecker>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ElementsDropHandler>().AsSingle();
         }
 
         #endregion

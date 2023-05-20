@@ -1,9 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using Match3.Auxiliary;
 using Match3.EventController;
 using UnityEngine;
@@ -20,8 +16,9 @@ namespace Match3.General
         [Inject] private GridControllerView _view;
         [Inject] private GridGenerator _gridGenerator;
         [Inject] private MatchChecker _matchChecker;
+        [Inject] private ElementsDropHandler _dropHandler;
         private TilesGrid _grid;
-
+        private bool _inputEnabled;
         #endregion
 
         #region Methods
@@ -39,6 +36,8 @@ namespace Match3.General
             _eventController.onGridRequest.Add(OnGridRequest);
             _eventController.onShuffleRequest.Add(OnShuffleRequest);
             _eventController.onSwipeRequest.Add(OnSwipeRequest);
+            _eventController.onInputEnable.Add(OnInputEnable);
+            _eventController.onAfterMatch.Add(OnAfterMatch);
         }
 
         public void UnregisterFromEvents()
@@ -48,10 +47,20 @@ namespace Match3.General
             _eventController.onGridRequest.Remove(OnGridRequest);
             _eventController.onShuffleRequest.Remove(OnShuffleRequest);
             _eventController.onSwipeRequest.Remove(OnSwipeRequest);
+            _eventController.onInputEnable.Remove(OnInputEnable);
+            _eventController.onAfterMatch.Remove(OnAfterMatch);
         }
 
+        private void OnAfterMatch()
+        {
+            _dropHandler.DropNeededElements();
+        }
+
+        private void OnInputEnable(bool enable) => _inputEnabled = enable;
         private void OnSwipeRequest((int row, int col, Direction dir) info)
         {
+            if(!_inputEnabled)
+                return;
             var element = new Vector2Int(info.row, info.col);
             element += GetDeltaPos(info.dir);
             if (!IsValidElement(element))
@@ -59,10 +68,10 @@ namespace Match3.General
                 return;
             }
 
-            SwipeElements(new Vector2Int(info.row, info.col), element);
+            SwapElements(new Vector2Int(info.row, info.col), element);
             if (!_matchChecker.IsPartOfMatch(info.row, info.col) && !_matchChecker.IsPartOfMatch(element.x, element.y))
             {
-                SwipeElements(new Vector2Int(info.row, info.col), element);
+                SwapElements(new Vector2Int(info.row, info.col), element);
                 return;
             }
 
@@ -72,7 +81,7 @@ namespace Match3.General
             _matchChecker.CheckNeedToCheckElementsForMatch();
         }
 
-        void SwipeElements(Vector2Int firstCoords, Vector2Int secondCoords)
+        void SwapElements(Vector2Int firstCoords, Vector2Int secondCoords)
         {
             var value = _grid[firstCoords.x, firstCoords.y].value;
             _grid[firstCoords.x, firstCoords.y].SetValue(_grid[secondCoords.x, secondCoords.y].value);
@@ -116,7 +125,8 @@ namespace Match3.General
             _grid = _gridGenerator.CreateGrid();
             _matchChecker.SetGrid(_grid);
             FillTheGrid();
-            _eventController.onGridCreated?.Trigger();
+            _eventController.onGridCreated.Trigger();
+            _eventController.onInputEnable.Trigger(true);
         }
 
         void FillTheGrid()

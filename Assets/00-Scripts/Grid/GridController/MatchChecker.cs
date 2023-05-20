@@ -69,7 +69,8 @@ namespace Match3.General
                 aElement.SetValue(-1,false);
                 _gridEventController.onElementValueChange.Trigger((aElement.row,aElement.col,aElement.value));
             }
-            
+
+            _gridEventController.onAfterMatch.Trigger();
         }
 
         public bool IsPartOfMatch(int row, int col)

@@ -10,5 +10,7 @@ namespace Match3.General
         public readonly ListEvent<(int row, int col, Direction dir)> onSwipeRequest = new();
         public readonly SimpleEvent onGridCreated = new();
         public readonly ListEvent<(int row,int col,int value)> onElementValueChange=new();
+        public readonly ListEvent<bool> onInputEnable = new();
+        public readonly SimpleEvent onAfterMatch=new();
     }
 }
