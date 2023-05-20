@@ -12,5 +12,6 @@ namespace Match3.General
         public readonly ListEvent<(int row,int col,int value)> onElementValueChange=new();
         public readonly ListEvent<bool> onInputEnable = new();
         public readonly SimpleEvent onAfterMatch=new();
+        public readonly SimpleEvent onAfterDrop = new();
     }
 }

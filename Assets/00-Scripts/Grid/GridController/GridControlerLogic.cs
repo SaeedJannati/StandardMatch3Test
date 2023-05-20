@@ -38,6 +38,7 @@ namespace Match3.General
             _eventController.onSwipeRequest.Add(OnSwipeRequest);
             _eventController.onInputEnable.Add(OnInputEnable);
             _eventController.onAfterMatch.Add(OnAfterMatch);
+            _eventController.onAfterDrop.Add(OnAfterDrop);
         }
 
         public void UnregisterFromEvents()
@@ -49,6 +50,12 @@ namespace Match3.General
             _eventController.onSwipeRequest.Remove(OnSwipeRequest);
             _eventController.onInputEnable.Remove(OnInputEnable);
             _eventController.onAfterMatch.Remove(OnAfterMatch);
+            _eventController.onAfterDrop.Remove(OnAfterDrop);
+        }
+
+        private void OnAfterDrop()
+        {
+            _matchChecker.CheckFilledElements();
         }
 
         private void OnAfterMatch()

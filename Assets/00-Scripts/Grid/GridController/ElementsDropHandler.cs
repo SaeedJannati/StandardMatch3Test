@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Match3.Auxiliary;
 using Match3.EventController;
 using Newtonsoft.Json;
@@ -51,7 +52,7 @@ namespace Match3.General
             _grid = _gridEventController.onGridRequest.GetFirstResult();
         }
 
-        public void DropNeededElements()
+       public async void DropNeededElements()
         {
             var colsWithEmptyTile = GetColsWithEmptyTile();
             if (colsWithEmptyTile.Count == 0)
@@ -60,6 +61,9 @@ namespace Match3.General
             {
                 DropElementsInCol(col);
             }
+
+            await Task.Yield();
+            _gridEventController.onAfterDrop.Trigger();
         }
 
 
@@ -74,27 +78,26 @@ namespace Match3.General
         void DropElementsInCol(int col)
         {
             var filledElements = GetFilledElementsInCol(col);
+            if(filledElements.Count==0)
+                return;
             var emptyElements = GetEmptyElementsInCol(col);
             var maxEmptyRow = emptyElements.Max(i => i.row);
-            var minEmptyRow = emptyElements.Min(i => i.row);
-            filledElements = filledElements.Where(i => i.row < minEmptyRow).ToList();
-            if (filledElements.Count == 0)
-                return;
-            var maxFilledRow = filledElements.Max(i => i.row);
-            var deltaRow = maxEmptyRow - maxFilledRow;
+            filledElements = filledElements.Where(i => i.row < maxEmptyRow).ToList();
             var firstCoord = new Vector2Int();
             var secondCoord = new Vector2Int();
-            for (int i = filledElements.Count - 1; i >= 0; i--)
+            for (int i = filledElements.Count-1; i >=0 ; i--)
             {
                 firstCoord.x = filledElements[i].row;
                 firstCoord.y = filledElements[i].col;
-                secondCoord.x = filledElements[i].row+deltaRow;
-                secondCoord.y = filledElements[i].col;
-               SwapElements(firstCoord, secondCoord);
+                secondCoord.x = emptyElements.Max(j => j.row);
+                secondCoord.y = col;
+                SwapElements(firstCoord,secondCoord);
                 _gridEventController.onElementValueChange.Trigger((firstCoord.x, firstCoord.y,
                     _grid[firstCoord.x, firstCoord.y].value));
                 _gridEventController.onElementValueChange.Trigger((secondCoord.x, secondCoord.y,
                     _grid[secondCoord.x, secondCoord.y].value));
+                emptyElements.Add(_grid[firstCoord.x,firstCoord.y]);
+                emptyElements.Remove(_grid[secondCoord.x, secondCoord.y]);
             }
         }
 

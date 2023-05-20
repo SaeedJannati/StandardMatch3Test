@@ -51,17 +51,26 @@ namespace Match3.General
 
         void CheckElementsForMatch(List<TileGridElement> elements)
         {
+            var matched = false;
             foreach (var element in elements)
             {
-                CheckMatchForElement(element);
+                matched |=    CheckMatchForElement(element);
             }
+            if(!matched)
+                return;
+            _gridEventController.onAfterMatch.Trigger();
         }
-        
 
-        void CheckMatchForElement(TileGridElement element)
+        public void CheckFilledElements()
+        {
+            var elementsToCheck = _grid.elements.Where(i => i.value!=-1).ToList();
+            CheckElementsForMatch(elementsToCheck);
+        }
+
+        bool CheckMatchForElement(TileGridElement element)
         {
             if(!IsPartOfMatch(element.row,element.col))
-                return;
+                return false;
             var elementsToFade = 
                 GetMatchedElements(element.row, element.col);
             foreach (var aElement in elementsToFade)
@@ -70,7 +79,7 @@ namespace Match3.General
                 _gridEventController.onElementValueChange.Trigger((aElement.row,aElement.col,aElement.value));
             }
 
-            _gridEventController.onAfterMatch.Trigger();
+            return true;
         }
 
         public bool IsPartOfMatch(int row, int col)

@@ -52,6 +52,12 @@ namespace Match3.General
             PrintGrid();
         }
 
+        [Button]
+        void DropCheck()
+        {
+            _eventController.onAfterMatch.Trigger();
+        }
+
         #endregion
     }
 }
