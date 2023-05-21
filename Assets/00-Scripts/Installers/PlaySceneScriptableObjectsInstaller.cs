@@ -1,5 +1,6 @@
 using System;
 using Match3.General;
+using Match3.General.MoveTest;
 using NaughtyAttributes;
 using UnityEngine;
 using Zenject;
@@ -14,6 +15,7 @@ namespace Match3.Installers
         [SerializeField, Expandable] private GridGeneratorModel gridGeneratorModel;
         [SerializeField, Expandable] private GridGeneratorViewModel gridGeneratorViewModel;
         [SerializeField, Expandable] private GridMoveEffectsModel _gridMoveEffectsModel;
+        [SerializeField, Expandable] private MoveTestControllerModel _moveTestControllerModel;
         #endregion
 
         #region Methods
@@ -23,6 +25,7 @@ namespace Match3.Installers
             Container.Bind<GridGeneratorViewModel>().FromScriptableObject(gridGeneratorViewModel).AsSingle();
             Container.BindInterfacesAndSelfTo<GridMoveEffectsModel>().FromScriptableObject(_gridMoveEffectsModel)
                 .AsSingle();
+            Container.Bind<MoveTestControllerModel>().FromScriptableObject(_moveTestControllerModel).AsSingle();
         }
     
 

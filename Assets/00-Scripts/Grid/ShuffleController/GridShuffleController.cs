@@ -32,11 +32,22 @@ namespace Match3.General
         public void RegisterToEvents()
         {
             _eventController.onGridCreated.Add(OnGridCreated);
+            _eventController.onCheckForPossibleMove.Add(OnCheckForPossibleMove);
         }
 
         public void UnregisterFromEvents()
         {
             _eventController.onGridCreated.Remove(OnGridCreated);
+            _eventController.onCheckForPossibleMove.Remove(OnCheckForPossibleMove);
+        }
+
+        private (bool possible, Direction swipeDirection) OnCheckForPossibleMove(TileGridElement element)
+        {
+            if (IsSwipeDownMatch(element))
+                return (true, Direction.Down);
+            if(IsSwipeRightMatch(element))
+                return (true, Direction.Right);
+            return (false, default);
         }
 
         private void OnGridCreated()

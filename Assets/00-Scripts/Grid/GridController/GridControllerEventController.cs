@@ -21,5 +21,7 @@ namespace Match3.General
         public readonly SimpleEvent onAfterShuffle = new();
         public readonly SimpleEvent onShuffleEffectRequest = new();
         public readonly ListEvent<(bool fade,float period)> onFadeGridRequest= new();
+        public readonly SimpleEvent onRandomMoveRequest=new();
+        public readonly  ListFuncEvent<TileGridElement,(bool possible,Direction swipeDirection)> onCheckForPossibleMove=new();
     }
 }

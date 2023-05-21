@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Match3.Auxiliary;
 using Match3.EventController;
+using Match3.General.MoveTest;
 using UnityEngine;
 using Zenject;
 
@@ -20,6 +20,7 @@ namespace Match3.General
         [Inject] private GridMoveEffectsHandler _moveEffects;
         [Inject] private GridMoveEffectsModel _moveEffectsModel;
         [Inject] private GridShuffleController _shuffleController;
+        [Inject] private MoveTestEventController _testEventController;
         private TilesGrid _grid;
         private bool _inputEnabled;
 
@@ -95,7 +96,9 @@ namespace Match3.General
             _eventController.onInputEnable.Trigger(false);
             await Task.Delay((int)(1000 * _moveEffectsModel.spawnPeriod));
             _eventController.onInputEnable.Trigger(true);
-            _shuffleController.OnShuffleNeedCheck();
+            if(_shuffleController.OnShuffleNeedCheck())
+                return;
+            _testEventController.onNextMovePossible.Trigger();
         }
 
         private void OnAfterDrop()
@@ -181,7 +184,9 @@ namespace Match3.General
         private async void OnGridCreateRequest()
         {
             _grid = _gridGenerator.CreateGrid();
-            _shuffleController.OnShuffleNeedCheck();
+            if(_shuffleController.OnShuffleNeedCheck())
+                return;
+            _testEventController.onNextMovePossible.Trigger();
         }
 
         private void OnCreateMockGridRequest()

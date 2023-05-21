@@ -1,4 +1,5 @@
 using Match3.General;
+using Match3.General.MoveTest;
 using UnityEngine;
 using Zenject;
 
@@ -9,6 +10,7 @@ namespace Match3.Installers
         #region Fields
         [SerializeField] private PlaySceneContextModel _model;
         [SerializeField] private GridControllerView _gridControllerView;
+        [SerializeField] private MoveTestControllerView _moveTestControllerView;
      
         #endregion
 
@@ -31,6 +33,7 @@ namespace Match3.Installers
         void BindMonoBehaviours()
         {
             Container.Bind<GridControllerView>().FromInstance(_gridControllerView);
+            Container.Bind<MoveTestControllerView>().FromInstance(_moveTestControllerView);
         }
 
         void BindInstallers()
