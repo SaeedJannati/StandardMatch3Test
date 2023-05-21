@@ -87,6 +87,9 @@ namespace Match3.General
             }
 
             _gridEventController.onFillEmptySlotsRequest.Trigger();
+            _gridEventController.onInputEnable.Trigger(false);
+            await Task.Delay((int)(1000 * _moveEffectsModel.spawnPeriod));
+            _gridEventController.onInputEnable.Trigger(true);
         }
 
         List<TileGridElement> CheckMatchForElement(TileGridElement element)

@@ -84,7 +84,6 @@ namespace Match3.General
             var colour = Color.black;
             if (info.value >= 0)
                 colour =_model.colours[info.value];
-
             SetColour(colour);
         }
 

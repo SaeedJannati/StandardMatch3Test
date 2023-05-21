@@ -6,7 +6,6 @@ using Match3.EventController;
 using Newtonsoft.Json;
 using UnityEngine;
 using Zenject;
-using Random = UnityEngine.Random;
 
 namespace Match3.General
 {
@@ -20,6 +19,7 @@ namespace Match3.General
         [Inject] private MatchChecker _matchChecker;
         [Inject] private ElementsDropHandler _dropHandler;
         [Inject] private GridMoveEffectsHandler _moveEffects;
+        [Inject] private GridMoveEffectsModel _moveEffectsModel;
         private TilesGrid _grid;
         private bool _inputEnabled;
 
@@ -58,13 +58,26 @@ namespace Match3.General
             _eventController.onFillEmptySlotsRequest.Remove(OnFillEmptySlotsRequest);
             _eventController.onCreateMockGridRequest.Remove(OnCreateMockGridRequest);
         }
-        private void OnFillEmptySlotsRequest()
+
+        private async void OnFillEmptySlotsRequest()
         {
-            var emptySlots = _grid.elements.Where(i => i.value == -1);
-            foreach (var element in emptySlots)
+            var emptySlots = _grid.elements.Where(i => i.value == -1).ToList();
+            if (emptySlots.Count == 0)
+                return;
+            emptySlots.Sort((x, y) => x.col.CompareTo(y.col));
+            var depthInCol = 0;
+            var lastCol = -1;
+            for (int i = emptySlots.Count - 1; i >= 0; i--)
             {
-                _gridGenerator.SetElementAmount(element.row, element.col);
-                _eventController.onElementValueChange.Trigger((element.row, element.col, element.value));
+                if (emptySlots[i].col != lastCol)
+                {
+                    lastCol = emptySlots[i].col;
+                    depthInCol = 0;
+                }
+
+                _gridGenerator.SetElementAmount(emptySlots[i].row, emptySlots[i].col);
+                _moveEffects.ApplySpawnEffect(emptySlots[i], depthInCol);
+                depthInCol++;
             }
         }
 
@@ -101,12 +114,11 @@ namespace Match3.General
             await ApplySwipeViewEffect(_grid[info.row, info.col], _grid[element.x, element.y]);
             _matchChecker.CheckNeedToCheckElementsForMatch();
         }
-       async Task ApplySwipeViewEffect(TileGridElement first,TileGridElement second)
+
+        async Task ApplySwipeViewEffect(TileGridElement first, TileGridElement second)
         {
             _eventController.onInputEnable.Trigger(false);
-            await _moveEffects.SwapElements(first,second);
-            _eventController.onElementValueChange.Trigger((first.row, first.col, first.value));
-            _eventController.onElementValueChange.Trigger((second.row, second.col, second.value));
+            await _moveEffects.SwapElements(first, second);
             await Task.Delay(300);
             _eventController.onInputEnable.Trigger(true);
         }
@@ -153,11 +165,11 @@ namespace Match3.General
         {
             _grid = _gridGenerator.CreateGrid();
         }
+
         private void OnCreateMockGridRequest()
         {
             _grid = _gridGenerator.CreateMockGrid();
         }
-      
 
 
         public void Dispose()

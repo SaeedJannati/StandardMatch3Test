@@ -17,5 +17,6 @@ namespace Match3.General
         public readonly ListFuncEvent<TileGridElement, GridElement> onRequestTileView = new();
         public readonly ListEvent<TileGridElement> onTileViewFadeRequest = new();
         public readonly SimpleEvent onCreateMockGridRequest=new();
+        public readonly ListEvent<(TileGridElement elemnetToDrop,TileGridElement destElement)>onDropEffectRequest=new();
     }
 }

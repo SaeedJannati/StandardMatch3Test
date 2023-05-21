@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Match3.Auxiliary;
 using Match3.EventController;
-using Newtonsoft.Json;
 using UnityEngine;
 using Zenject;
 
@@ -15,6 +14,7 @@ namespace Match3.General
         #region Fields
 
         [Inject] private GridControllerEventController _gridEventController;
+        [Inject] private GridMoveEffectsModel _moveEffectsModel;
         private TilesGrid _grid;
 
         #endregion
@@ -57,12 +57,17 @@ namespace Match3.General
             var colsWithEmptyTile = GetColsWithEmptyTile();
             if (colsWithEmptyTile.Count == 0)
                 return;
+            var anyElementNeedDrop = false;
             foreach (var col in colsWithEmptyTile)
             {
-                DropElementsInCol(col);
+                anyElementNeedDrop|=  DropElementsInCol(col);
             }
 
+            _gridEventController.onInputEnable.Trigger(false);
+            if (anyElementNeedDrop)
+                await Task.Delay((int)(1000 * _moveEffectsModel.dropPeriod));
             await Task.Yield();
+            _gridEventController.onInputEnable.Trigger(true);
             _gridEventController.onAfterDrop.Trigger();
         }
 
@@ -75,11 +80,11 @@ namespace Match3.General
             return cols;
         }
 
-        void DropElementsInCol(int col)
+        bool DropElementsInCol(int col)
         {
             var filledElements = GetFilledElementsInCol(col);
             if(filledElements.Count==0)
-                return;
+                return false;
             var emptyElements = GetEmptyElementsInCol(col);
             var maxEmptyRow = emptyElements.Max(i => i.row);
             filledElements = filledElements.Where(i => i.row < maxEmptyRow).ToList();
@@ -92,14 +97,15 @@ namespace Match3.General
                 secondCoord.x = emptyElements.Max(j => j.row);
                 secondCoord.y = col;
                 SwapElements(firstCoord,secondCoord);
-                _gridEventController.onElementValueChange.Trigger((firstCoord.x, firstCoord.y,
-                    _grid[firstCoord.x, firstCoord.y].value));
-                _gridEventController.onElementValueChange.Trigger((secondCoord.x, secondCoord.y,
-                    _grid[secondCoord.x, secondCoord.y].value));
+                _gridEventController.onDropEffectRequest.Trigger((_grid[firstCoord.x, firstCoord.y],_grid[secondCoord.x, secondCoord.y]));
                 emptyElements.Add(_grid[firstCoord.x,firstCoord.y]);
                 emptyElements.Remove(_grid[secondCoord.x, secondCoord.y]);
             }
+
+            return true;
         }
+
+      
 
         List<TileGridElement> GetEmptyElementsInCol(int col)
         {
