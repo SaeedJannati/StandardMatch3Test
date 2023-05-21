@@ -52,7 +52,7 @@ namespace Match3.General
             return true;
         }
 
-        public void ShuffleGrid()
+        public async void ShuffleGrid()
        {
            var values = _grid.elements.Select(i => i.value).ToList();
            values.Shuffle();
@@ -60,14 +60,9 @@ namespace Match3.General
            {
                _grid[i].SetValue(values[i], false);
            }
-           
-           foreach (TileGridElement element in _grid.elements)
-           {
-               _eventController.onElementValueChange.Trigger((element.row, element.col, element.value));
-           }
-           
-           
-           _eventController.onAfterShuffle.Trigger();
+
+           _eventController.onShuffleEffectRequest.Trigger();
+       
        }
 
         bool CheckForPossibleMatch()

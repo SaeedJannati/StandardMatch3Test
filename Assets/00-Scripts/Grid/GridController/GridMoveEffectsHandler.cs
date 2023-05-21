@@ -20,11 +20,7 @@ namespace Match3.General
 
         #region Methods
 
-        public void Dispose()
-        {
-            UnregisterFromEvents();
-            GC.SuppressFinalize(this);
-        }
+       
 
         public void Initialize()
         {
@@ -36,6 +32,7 @@ namespace Match3.General
             _eventController.onGridCreated.Add(OnGridCreated);
             _eventController.onTileViewFadeRequest.Add(OnTileViewFadeRequest);
             _eventController.onDropEffectRequest.Add(OnDropEffectRequest);
+            _eventController.onShuffleEffectRequest.Add(OnShuffleEffectRequest);
         }
 
         public void UnregisterFromEvents()
@@ -43,6 +40,25 @@ namespace Match3.General
             _eventController.onGridCreated.Remove(OnGridCreated);
             _eventController.onTileViewFadeRequest.Remove(OnTileViewFadeRequest);
             _eventController.onDropEffectRequest.Remove(OnDropEffectRequest);
+            _eventController.onShuffleEffectRequest.Remove(OnShuffleEffectRequest);
+        }
+
+        private async void OnShuffleEffectRequest()
+        {
+            _eventController.onInputEnable.Trigger(false);
+            var fadePeriod = _model.shuffleFadePeriod;
+            _eventController.onFadeGridRequest.Trigger((true, fadePeriod));
+            await Task.Delay((int)(1000 * fadePeriod));
+            var delay = _model.shuffleDelayPeriod;
+            await Task.Delay((int)(1000 * delay+100));
+            foreach (TileGridElement element in _grid.elements)
+            {
+                _eventController.onElementValueChange.Trigger((element.row, element.col, element.value));
+            }
+            _eventController.onFadeGridRequest.Trigger((false, fadePeriod));
+            await Task.Delay((int)(1000 * fadePeriod));
+            _eventController.onInputEnable.Trigger(true);
+            _eventController.onAfterShuffle.Trigger();
         }
 
         async void OnDropEffectRequest((TileGridElement elemnetToDrop, TileGridElement destElement) info)
@@ -95,7 +111,14 @@ namespace Match3.General
             await Task.Yield();
         }
 
-        #endregion
+        public async Task GridCreationEffect()
+        {
+            _eventController.onInputEnable.Trigger(false);
+            var fadePeriod = _model.shuffleFadePeriod;
+            _eventController.onFadeGridRequest.Trigger((false, fadePeriod));
+            await Task.Delay((int)(1000 * fadePeriod));
+            _eventController.onInputEnable.Trigger(true);
+        }
 
         public async  void ApplySpawnEffect(TileGridElement element,int depthInCol)
         {
@@ -110,5 +133,13 @@ namespace Match3.General
             await Task.Delay((int)(1000 * period));
             view.transform.position = initPos;
         }
+        public void Dispose()
+        {
+            UnregisterFromEvents();
+            GC.SuppressFinalize(this);
+        }
+        #endregion
+
+
     }
 }

@@ -19,5 +19,7 @@ namespace Match3.General
         public readonly SimpleEvent onCreateMockGridRequest=new();
         public readonly ListEvent<(TileGridElement elemnetToDrop,TileGridElement destElement)>onDropEffectRequest=new();
         public readonly SimpleEvent onAfterShuffle = new();
+        public readonly SimpleEvent onShuffleEffectRequest = new();
+        public readonly ListEvent<(bool fade,float period)> onFadeGridRequest= new();
     }
 }

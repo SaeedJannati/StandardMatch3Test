@@ -178,7 +178,7 @@ namespace Match3.General
           _shuffleController.ShuffleGrid();
         }
 
-        private void OnGridCreateRequest()
+        private async void OnGridCreateRequest()
         {
             _grid = _gridGenerator.CreateGrid();
             _shuffleController.OnShuffleNeedCheck();

@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+using DG.Tweening;
 using Match3.Auxiliary;
 using Match3.EventController;
 using UnityEngine;
@@ -58,12 +60,30 @@ namespace Match3.General
         {
             _gridEventController.onElementValueChange.Add(OnElementValueChange);
             _gridEventController.onRequestTileView.Add(OnRequestTileView);
+            _gridEventController.onFadeGridRequest.Add(OnFadeGridRequest);
         }
 
         public void UnregisterFromEvents()
         {
             _gridEventController.onElementValueChange.Remove(OnElementValueChange);
             _gridEventController.onRequestTileView.Remove(OnRequestTileView);
+            _gridEventController.onFadeGridRequest.Remove(OnFadeGridRequest);
+        }
+
+        private async void OnFadeGridRequest((bool fade,float period)info)
+        {
+            var randomDelay = Random.Range(0, 100);
+            var initAlpha = info.fade ? 1.0f : 0.0f;
+            var destAlpha =info.fade ? 0.0f : 1.0f;
+            var initColour = spriteRenderer.color;
+            initColour.a = initAlpha;
+            spriteRenderer.color = initColour;
+            await Task.Delay(randomDelay);
+            spriteRenderer.DOFade(destAlpha, info.period);
+            transform.DOScale(destAlpha, info.period);
+            await Task.Delay((int)(1000 * info.period));
+            initColour.a = destAlpha;
+            spriteRenderer.color = initColour;
         }
 
         private GridElement OnRequestTileView(TileGridElement element)
