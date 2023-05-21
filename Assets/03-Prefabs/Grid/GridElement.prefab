@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _swipeable: {fileID: 8169415929056861713}
-  _renderer: {fileID: 8169415929056861715}
+  <spriteRenderer>k__BackingField: {fileID: 8169415929056861715}
   row: 0
   col: 0
 --- !u!114 &8169415929056861713

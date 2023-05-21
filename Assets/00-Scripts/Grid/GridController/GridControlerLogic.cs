@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Match3.Auxiliary;
 using Match3.EventController;
 using Newtonsoft.Json;
@@ -18,8 +19,10 @@ namespace Match3.General
         [Inject] private GridGenerator _gridGenerator;
         [Inject] private MatchChecker _matchChecker;
         [Inject] private ElementsDropHandler _dropHandler;
+        [Inject] private GridMoveEffectsHandler _moveEffects;
         private TilesGrid _grid;
         private bool _inputEnabled;
+
         #endregion
 
         #region Methods
@@ -62,7 +65,7 @@ namespace Match3.General
             foreach (var element in emptySlots)
             {
                 SetElementAmount(element.row, element.col);
-                _eventController.onElementValueChange.Trigger((element.row,element.col,element.value));
+                _eventController.onElementValueChange.Trigger((element.row, element.col, element.value));
             }
         }
 
@@ -77,9 +80,10 @@ namespace Match3.General
         }
 
         private void OnInputEnable(bool enable) => _inputEnabled = enable;
-        private void OnSwipeRequest((int row, int col, Direction dir) info)
+
+        private async void OnSwipeRequest((int row, int col, Direction dir) info)
         {
-            if(!_inputEnabled)
+            if (!_inputEnabled)
                 return;
             var element = new Vector2Int(info.row, info.col);
             element += GetDeltaPos(info.dir);
@@ -95,11 +99,19 @@ namespace Match3.General
                 return;
             }
 
-            _eventController.onElementValueChange.Trigger((info.row, info.col, _grid[info.row, info.col].value));
-            _eventController.onElementValueChange.Trigger((element.x, element.y, _grid[element.x, element.y].value));
-
+            await ApplySwipeViewEffect(_grid[info.row, info.col], _grid[element.x, element.y]);
             _matchChecker.CheckNeedToCheckElementsForMatch();
         }
+       async Task ApplySwipeViewEffect(TileGridElement first,TileGridElement second)
+        {
+            _eventController.onInputEnable.Trigger(false);
+            await _moveEffects.SwapElements(first,second);
+            _eventController.onElementValueChange.Trigger((first.row, first.col, first.value));
+            _eventController.onElementValueChange.Trigger((second.row, second.col, second.value));
+            await Task.Delay(300);
+            _eventController.onInputEnable.Trigger(true);
+        }
+
 
         void SwapElements(Vector2Int firstCoords, Vector2Int secondCoords)
         {

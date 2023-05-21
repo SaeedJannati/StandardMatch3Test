@@ -1,3 +1,4 @@
+using System;
 using Match3.General;
 using NaughtyAttributes;
 using UnityEngine;
@@ -12,13 +13,16 @@ namespace Match3.Installers
 
         [SerializeField, Expandable] private GridGeneratorModel gridGeneratorModel;
         [SerializeField, Expandable] private GridGeneratorViewModel gridGeneratorViewModel;
+        [SerializeField, Expandable] private GridMoveEffectsModel _gridMoveEffectsModel;
         #endregion
 
         #region Methods
         public override void InstallBindings()
         {
             Container.Bind<GridGeneratorModel>().FromScriptableObject(gridGeneratorModel).AsSingle();
-            Container.BindInterfacesAndSelfTo<GridGeneratorViewModel>().FromInstance(gridGeneratorViewModel);
+            Container.Bind<GridGeneratorViewModel>().FromScriptableObject(gridGeneratorViewModel).AsSingle();
+            Container.BindInterfacesAndSelfTo<GridMoveEffectsModel>().FromScriptableObject(_gridMoveEffectsModel)
+                .AsSingle();
         }
     
 

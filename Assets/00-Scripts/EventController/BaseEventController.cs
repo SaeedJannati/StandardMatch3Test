@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Match3.EventController
@@ -55,6 +56,15 @@ namespace Match3.EventController
                     return default;
                 return results[0];
             }
+            public T GetFirstNonDefaultResult()
+            {
+                var results = Trigger();
+                if (results == default)
+                    return default;
+                if (results.Count == 0)
+                    return default;
+                return results.FirstOrDefault(i=>i!=null);
+            }
             #endregion
         }
 
@@ -102,7 +112,15 @@ namespace Match3.EventController
                     return default;
                 return results[0];
             }
-
+           public TOut GetFirstNonDefaultResult(TIn input)
+           {
+               var results = Trigger(input);
+               if (results == default)
+                   return default;
+               if (results.Count == default)
+                   return default;
+               return results.FirstOrDefault(i=>i!=null);
+           }
             #endregion
         }
 

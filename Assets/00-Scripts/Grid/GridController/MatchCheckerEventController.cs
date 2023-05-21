@@ -5,6 +5,5 @@ namespace Match3.General
 {
     public class MatchCheckerEventController:BaseEventController
     {
-     
     }
 }

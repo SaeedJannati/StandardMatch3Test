@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Match3.Auxiliary;
 using Match3.EventController;
 using TMPro;
@@ -14,6 +15,7 @@ namespace Match3.General
 
         [Inject] private GridControllerEventController _gridEventController;
         [Inject] private MatchCheckerEventController _eventController;
+        [Inject] private GridMoveEffectsModel _moveEffectsModel;
         private TilesGrid _grid;
 
         #endregion
@@ -47,7 +49,7 @@ namespace Match3.General
             CheckElementsForMatch(elementsToCheck);
         }
 
-        bool CheckElementsForMatch(List<TileGridElement> elements)
+      async  Task<bool> CheckElementsForMatch(List<TileGridElement> elements)
         {
             var matched = false;
             foreach (var element in elements)
@@ -57,14 +59,18 @@ namespace Match3.General
 
             if (!matched)
                 return false;
+            _gridEventController.onInputEnable.Trigger(false);
+            await Task.Delay((int)(1000 * _moveEffectsModel.tileFadePeriod));
+                _gridEventController.onInputEnable.Trigger(true);
             _gridEventController.onAfterMatch.Trigger();
             return true;
         }
 
-        public void CheckFilledElements()
+        public async void CheckFilledElements()
         {
             var elementsToCheck = _grid.elements.Where(i => i.value != -1).ToList();
-            if (CheckElementsForMatch(elementsToCheck))
+            var isThereMatch = await CheckElementsForMatch(elementsToCheck);
+            if (isThereMatch)
             {
                 return;
             }
@@ -80,9 +86,9 @@ namespace Match3.General
             foreach (var aElement in elementsToFade)
             {
                 aElement.SetValue(-1, false);
-                _gridEventController.onElementValueChange.Trigger((aElement.row, aElement.col, aElement.value));
+                _gridEventController.onTileViewFadeRequest.Trigger((aElement));
             }
-
+  
             return true;
         }
 

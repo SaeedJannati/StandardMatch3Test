@@ -10,7 +10,7 @@ namespace Match3.General
         #region Fields
 
         [SerializeField] private Swipeable _swipeable;
-        [SerializeField] private SpriteRenderer _renderer;
+        [field: SerializeField] public SpriteRenderer spriteRenderer { get; private set; }
 
         [Inject] private GridControllerEventController _gridEventController;
         [Inject] private GridGeneratorViewModel _model;
@@ -46,7 +46,7 @@ namespace Match3.General
 
         public void SetColour(Color colour)
         {
-            _renderer.color = colour;
+            spriteRenderer.color = colour;
         }
 
         private void OnSwipe(Direction direction)
@@ -57,11 +57,22 @@ namespace Match3.General
         public void RegisterToEvents()
         {
             _gridEventController.onElementValueChange.Add(OnElementValueChange);
+            _gridEventController.onRequestTileView.Add(OnRequestTileView);
         }
 
         public void UnregisterFromEvents()
         {
             _gridEventController.onElementValueChange.Remove(OnElementValueChange);
+            _gridEventController.onRequestTileView.Remove(OnRequestTileView);
+        }
+
+        private GridElement OnRequestTileView(TileGridElement element)
+        {
+            if (element.row != row)
+                return default;
+            if (element.col != col)
+                return default;
+            return this;
         }
 
         private void OnElementValueChange((int row, int col, int value) info)
