@@ -49,21 +49,32 @@ namespace Match3.General
             CheckElementsForMatch(elementsToCheck);
         }
 
-      async  Task<bool> CheckElementsForMatch(List<TileGridElement> elements)
+        async Task<bool> CheckElementsForMatch(List<TileGridElement> elements)
         {
-            var matched = false;
+            var matchedElements = new List<TileGridElement>();
             foreach (var element in elements)
             {
-                matched |= CheckMatchForElement(element);
+                matchedElements.AddRange(CheckMatchForElement(element)) ;
             }
 
-            if (!matched)
+            if (matchedElements.Count==0)
                 return false;
-            _gridEventController.onInputEnable.Trigger(false);
-            await Task.Delay((int)(1000 * _moveEffectsModel.tileFadePeriod));
-                _gridEventController.onInputEnable.Trigger(true);
+            await FadeTiles(matchedElements);
+          
             _gridEventController.onAfterMatch.Trigger();
             return true;
+        }
+
+        async Task FadeTiles(List<TileGridElement> elements)
+        {
+            foreach (var aElement in elements)
+            {
+                aElement.SetValue(-1, false);
+                _gridEventController.onTileViewFadeRequest.Trigger((aElement));
+            }
+            _gridEventController.onInputEnable.Trigger(false);
+            await Task.Delay((int)(1000 * _moveEffectsModel.tileFadePeriod));
+            _gridEventController.onInputEnable.Trigger(true);
         }
 
         public async void CheckFilledElements()
@@ -74,22 +85,17 @@ namespace Match3.General
             {
                 return;
             }
+
             _gridEventController.onFillEmptySlotsRequest.Trigger();
         }
 
-        bool CheckMatchForElement(TileGridElement element)
+        List<TileGridElement> CheckMatchForElement(TileGridElement element)
         {
             if (!IsPartOfMatch(element.row, element.col))
-                return false;
+                return new();
             var elementsToFade =
                 GetMatchedElements(element.row, element.col);
-            foreach (var aElement in elementsToFade)
-            {
-                aElement.SetValue(-1, false);
-                _gridEventController.onTileViewFadeRequest.Trigger((aElement));
-            }
-  
-            return true;
+            return elementsToFade;
         }
 
         public bool IsPartOfMatch(int row, int col)

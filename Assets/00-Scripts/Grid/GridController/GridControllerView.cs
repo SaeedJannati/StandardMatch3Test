@@ -11,7 +11,6 @@ namespace Match3.General
         #region Fields
 
         [Inject] private GridControllerEventController _eventController;
-
         #endregion
 
         #region Unity actions
@@ -30,6 +29,13 @@ namespace Match3.General
         #endregion
 
         #region Methods
+
+        [Button]
+        void CreateMockGrid()
+        {
+            _eventController.onCreateMockGridRequest.Trigger();
+            PrintGrid();
+        }
 
         [Button]
         void CreateGrid()

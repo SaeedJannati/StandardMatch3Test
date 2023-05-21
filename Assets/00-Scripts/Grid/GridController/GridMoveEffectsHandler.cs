@@ -45,6 +45,8 @@ namespace Match3.General
             var period = _model.tileFadePeriod;
             var view = _eventController.onRequestTileView.GetFirstNonDefaultResult(element);
             view.spriteRenderer.DOColor(Color.black, period);
+            await Task.Delay((int)(1000 * period));
+            _eventController.onElementValueChange.Trigger((element.row,element.col,element.value));
         }
 
         private void OnGridCreated()

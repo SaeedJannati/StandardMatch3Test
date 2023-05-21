@@ -16,5 +16,6 @@ namespace Match3.General
         public readonly SimpleEvent onFillEmptySlotsRequest=new();
         public readonly ListFuncEvent<TileGridElement, GridElement> onRequestTileView = new();
         public readonly ListEvent<TileGridElement> onTileViewFadeRequest = new();
+        public readonly SimpleEvent onCreateMockGridRequest=new();
     }
 }

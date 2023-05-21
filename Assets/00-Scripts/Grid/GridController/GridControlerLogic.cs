@@ -37,34 +37,33 @@ namespace Match3.General
         {
             _eventController.onDispose.Add(Dispose);
             _eventController.onCreateGridRequest.Add(OnGridCreateRequest);
-            _eventController.onGridRequest.Add(OnGridRequest);
             _eventController.onShuffleRequest.Add(OnShuffleRequest);
             _eventController.onSwipeRequest.Add(OnSwipeRequest);
             _eventController.onInputEnable.Add(OnInputEnable);
             _eventController.onAfterMatch.Add(OnAfterMatch);
             _eventController.onAfterDrop.Add(OnAfterDrop);
             _eventController.onFillEmptySlotsRequest.Add(OnFillEmptySlotsRequest);
+            _eventController.onCreateMockGridRequest.Add(OnCreateMockGridRequest);
         }
 
         public void UnregisterFromEvents()
         {
             _eventController.onDispose.Remove(Dispose);
             _eventController.onCreateGridRequest.Remove(OnGridCreateRequest);
-            _eventController.onGridRequest.Remove(OnGridRequest);
             _eventController.onShuffleRequest.Remove(OnShuffleRequest);
             _eventController.onSwipeRequest.Remove(OnSwipeRequest);
             _eventController.onInputEnable.Remove(OnInputEnable);
             _eventController.onAfterMatch.Remove(OnAfterMatch);
             _eventController.onAfterDrop.Remove(OnAfterDrop);
             _eventController.onFillEmptySlotsRequest.Remove(OnFillEmptySlotsRequest);
+            _eventController.onCreateMockGridRequest.Remove(OnCreateMockGridRequest);
         }
-
         private void OnFillEmptySlotsRequest()
         {
             var emptySlots = _grid.elements.Where(i => i.value == -1);
             foreach (var element in emptySlots)
             {
-                SetElementAmount(element.row, element.col);
+                _gridGenerator.SetElementAmount(element.row, element.col);
                 _eventController.onElementValueChange.Trigger((element.row, element.col, element.value));
             }
         }
@@ -150,39 +149,15 @@ namespace Match3.General
             ShuffleGrid();
         }
 
-        private TilesGrid OnGridRequest() => _grid;
-
         private void OnGridCreateRequest()
         {
             _grid = _gridGenerator.CreateGrid();
-            _matchChecker.SetGrid(_grid);
-            FillTheGrid();
-            _eventController.onGridCreated.Trigger();
-            _eventController.onInputEnable.Trigger(true);
         }
-
-        void FillTheGrid()
+        private void OnCreateMockGridRequest()
         {
-            var count = _grid.count;
-            for (int i = 0; i < _grid.rows; i++)
-            {
-                for (int j = 0; j < _grid.columns; j++)
-                {
-                    SetElementAmount(i, j);
-                }
-            }
+            _grid = _gridGenerator.CreateMockGrid();
         }
-
-        void SetElementAmount(int row, int col)
-        {
-            var amount = GetRandomAmount();
-            _grid[row, col].SetValue(amount, false);
-            if (_matchChecker.IsPartOfMatch(row, col))
-                SetElementAmount(row, col);
-        }
-
-
-        int GetRandomAmount() => Random.Range(0, _gridGenerator.colourCount);
+      
 
 
         public void Dispose()
