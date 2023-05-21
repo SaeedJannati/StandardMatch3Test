@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d63b744386a4c11874f0e973be95b61, type: 3}
   m_Name: GridMoveEffectsModel
   m_EditorClassIdentifier: 
+  <spawnPeriod>k__BackingField: 0.5
   <tileSwipePeriod>k__BackingField: 0.3
   <tileFadePeriod>k__BackingField: 0.3
+  <dropPeriod>k__BackingField: 0.5
