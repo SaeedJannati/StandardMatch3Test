@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Match3.Auxiliary;
 using Match3.EventController;
-using Newtonsoft.Json;
 using UnityEngine;
 using Zenject;
 
@@ -20,6 +19,7 @@ namespace Match3.General
         [Inject] private ElementsDropHandler _dropHandler;
         [Inject] private GridMoveEffectsHandler _moveEffects;
         [Inject] private GridMoveEffectsModel _moveEffectsModel;
+        [Inject] private GridShuffleController _shuffleController;
         private TilesGrid _grid;
         private bool _inputEnabled;
 
@@ -44,6 +44,7 @@ namespace Match3.General
             _eventController.onAfterDrop.Add(OnAfterDrop);
             _eventController.onFillEmptySlotsRequest.Add(OnFillEmptySlotsRequest);
             _eventController.onCreateMockGridRequest.Add(OnCreateMockGridRequest);
+            _eventController.onAfterShuffle.Add(OnAfterShuffle);
         }
 
         public void UnregisterFromEvents()
@@ -57,14 +58,25 @@ namespace Match3.General
             _eventController.onAfterDrop.Remove(OnAfterDrop);
             _eventController.onFillEmptySlotsRequest.Remove(OnFillEmptySlotsRequest);
             _eventController.onCreateMockGridRequest.Remove(OnCreateMockGridRequest);
+            _eventController.onAfterShuffle.Remove(OnAfterShuffle);
+        }
+
+        private void OnAfterShuffle()
+        {
+            _matchChecker.CheckFilledElements();
         }
 
         private async void OnFillEmptySlotsRequest()
         {
             var emptySlots = _grid.elements.Where(i => i.value == -1).ToList();
             if (emptySlots.Count == 0)
+            {
+                _shuffleController.OnShuffleNeedCheck();
                 return;
-            emptySlots.Sort((x, y) => x.col.CompareTo(y.col));
+            }
+
+            var rows = _grid.rows;
+            emptySlots.Sort((x, y) => (x.col*rows+x.row).CompareTo(y.col*rows+y.row));
             var depthInCol = 0;
             var lastCol = -1;
             for (int i = emptySlots.Count - 1; i >= 0; i--)
@@ -79,6 +91,11 @@ namespace Match3.General
                 _moveEffects.ApplySpawnEffect(emptySlots[i], depthInCol);
                 depthInCol++;
             }
+
+            _eventController.onInputEnable.Trigger(false);
+            await Task.Delay((int)(1000 * _moveEffectsModel.spawnPeriod));
+            _eventController.onInputEnable.Trigger(true);
+            _shuffleController.OnShuffleNeedCheck();
         }
 
         private void OnAfterDrop()
@@ -158,12 +175,13 @@ namespace Match3.General
 
         private void OnShuffleRequest()
         {
-            ShuffleGrid();
+          _shuffleController.ShuffleGrid();
         }
 
         private void OnGridCreateRequest()
         {
             _grid = _gridGenerator.CreateGrid();
+            _shuffleController.OnShuffleNeedCheck();
         }
 
         private void OnCreateMockGridRequest()
@@ -176,20 +194,14 @@ namespace Match3.General
         {
             UnregisterFromEvents();
             _gridGenerator.Dispose();
-            _eventController.Dispose();
             _matchChecker.Dispose();
+            _moveEffects.Dispose();
+            _shuffleController.Dispose();
+            _eventController.Dispose();
             GC.SuppressFinalize(this);
         }
 
-        void ShuffleGrid()
-        {
-            var values = _grid.elements.Select(i => i.value).ToList();
-            values.Shuffle();
-            for (int i = 0, e = _grid.count; i < e; i++)
-            {
-                _grid[i].SetValue(values[i], false);
-            }
-        }
+      
 
         #endregion
     }

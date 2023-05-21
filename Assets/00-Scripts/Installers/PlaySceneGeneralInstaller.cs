@@ -27,6 +27,7 @@ namespace Match3.Installers
             Container.BindInterfacesAndSelfTo<MatchChecker>().AsSingle();
             Container.BindInterfacesAndSelfTo<ElementsDropHandler>().AsSingle();
             Container.BindInterfacesAndSelfTo<GridMoveEffectsHandler>().AsSingle();
+            Container.BindInterfacesAndSelfTo<GridShuffleController>().AsSingle();
         }
 
         #endregion

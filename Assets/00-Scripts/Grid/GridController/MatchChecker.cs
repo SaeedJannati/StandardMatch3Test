@@ -37,11 +37,16 @@ namespace Match3.General
 
         public void RegisterToEvents()
         {
+            _eventController.onElementMatchCheck.Add(OnElementMatchCheck);
         }
 
         public void UnregisterFromEvents()
         {
+            _eventController.onElementMatchCheck.Add(OnElementMatchCheck);
         }
+
+        private bool OnElementMatchCheck(TileGridElement element)=>IsPartOfMatch(element.row,element.col);
+        
 
         public void CheckNeedToCheckElementsForMatch()
         {
@@ -87,9 +92,7 @@ namespace Match3.General
             }
 
             _gridEventController.onFillEmptySlotsRequest.Trigger();
-            _gridEventController.onInputEnable.Trigger(false);
-            await Task.Delay((int)(1000 * _moveEffectsModel.spawnPeriod));
-            _gridEventController.onInputEnable.Trigger(true);
+        
         }
 
         List<TileGridElement> CheckMatchForElement(TileGridElement element)

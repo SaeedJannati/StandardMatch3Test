@@ -5,5 +5,6 @@ namespace Match3.General
 {
     public class MatchCheckerEventController:BaseEventController
     {
+        public readonly ListFuncEvent<TileGridElement, bool> onElementMatchCheck = new();
     }
 }
