@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Match3.Auxiliary;
 using Match3.EventController;
 using Sirenix.OdinInspector;
@@ -95,7 +96,32 @@ namespace Match3.General
             _gridBorder.size = _gridBack.size+Vector2.one/7.0f;
             _gridBack.transform.position=Vector3.zero;
             _gridBorder.transform.position=Vector2.zero;
+
+            SetCameraSizeBaseOnTheBorderSize();
         }
+
+       async void SetCameraSizeBaseOnTheBorderSize()
+        {
+            var camera = Camera.main;
+            camera.orthographicSize = 5.0f;
+            await Task.Yield();
+            var topRight = camera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0));
+            var borderRight = _gridBorder.bounds.max.x;
+            var borderTop = _gridBorder.bounds.max.y;
+            var deltaX = borderRight - topRight.x;
+            var deltaY = borderTop - topRight.y;
+            var currentCameraSize =camera.orthographicSize ;
+            if(deltaX<0 && deltaY<0)
+                return;
+                
+            if (deltaX > deltaY)
+            {
+                camera.orthographicSize = currentCameraSize*(borderRight * 1.2f) / topRight.x;
+                return;
+            }
+            camera.orthographicSize *= (borderTop * 1.2f) / topRight.y;
+        }
+
         #endregion
     }
 }
