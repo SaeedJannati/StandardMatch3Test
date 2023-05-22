@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Match3.Auxiliary;
 using Match3.EventController;
+using Match3.General.MoveTest;
 using UnityEngine;
 using Zenject;
 
@@ -15,6 +16,7 @@ namespace Match3.General
 
         [Inject] private GridControllerEventController _gridEventController;
         [Inject] private GridMoveEffectsModel _moveEffectsModel;
+        [Inject] private MoveTestEventController _testEventController;
         private TilesGrid _grid;
 
         #endregion
@@ -63,14 +65,28 @@ namespace Match3.General
                 anyElementNeedDrop|=  DropElementsInCol(col);
             }
 
-            _gridEventController.onInputEnable.Trigger(false);
+            
             if (anyElementNeedDrop)
-                await Task.Delay((int)(1000 * _moveEffectsModel.dropPeriod));
-            await Task.Yield();
-            _gridEventController.onInputEnable.Trigger(true);
+               await CheckForDelay();
+           
+
             _gridEventController.onAfterDrop.Trigger();
         }
 
+       async Task CheckForDelay()
+       {
+           if(IsNonGraphicalTest())
+               return;
+           _gridEventController.onInputEnable.Trigger(false);
+           await Task.Delay((int)(1000 * _moveEffectsModel.dropPeriod));
+           _gridEventController.onInputEnable.Trigger(true);
+           await Task.Yield();
+       }
+
+       bool IsNonGraphicalTest()
+       {
+           return _testEventController.onNonGraphicalTestRunningRequest.GetFirstResult();
+       }
 
         List<int> GetColsWithEmptyTile()
         {

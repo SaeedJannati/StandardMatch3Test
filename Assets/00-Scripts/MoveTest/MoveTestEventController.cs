@@ -11,5 +11,6 @@ namespace Match3.General.MoveTest
         public readonly SimpleEvent onTestBegin = new();
         public readonly SimpleEvent onNextMovePossible = new();
         public readonly SimpleEvent onTestFinish=new();
+        public ListFuncEvent<bool> onNonGraphicalTestRunningRequest = new();
     }
 }

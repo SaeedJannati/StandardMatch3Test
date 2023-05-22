@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Match3.Auxiliary;
 using Match3.EventController;
+using Match3.General.MoveTest;
 using TMPro;
 using Zenject;
 
@@ -16,6 +17,7 @@ namespace Match3.General
         [Inject] private GridControllerEventController _gridEventController;
         [Inject] private MatchCheckerEventController _eventController;
         [Inject] private GridMoveEffectsModel _moveEffectsModel;
+        [Inject] private MoveTestEventController _testEventController;
         private TilesGrid _grid;
 
         #endregion
@@ -77,11 +79,23 @@ namespace Match3.General
                 aElement.SetValue(-1, false);
                 _gridEventController.onTileViewFadeRequest.Trigger((aElement));
             }
+         
+            await CheckForDelay();
+   
+        }
+        async Task CheckForDelay()
+        {
+            if(IsNonGraphicalTest())
+                return;
             _gridEventController.onInputEnable.Trigger(false);
             await Task.Delay((int)(1000 * _moveEffectsModel.tileFadePeriod));
             _gridEventController.onInputEnable.Trigger(true);
         }
 
+        bool IsNonGraphicalTest()
+        {
+            return _testEventController.onNonGraphicalTestRunningRequest.GetFirstResult();
+        }
         public async void CheckFilledElements()
         {
             var elementsToCheck = _grid.elements.Where(i => i.value != -1).ToList();

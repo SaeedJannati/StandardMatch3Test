@@ -77,9 +77,10 @@ namespace Match3.General
             }
 
             var rows = _grid.rows;
-            emptySlots.Sort((x, y) => (x.col*rows+x.row).CompareTo(y.col*rows+y.row));
+            emptySlots.Sort((x, y) => (x.col * rows + x.row).CompareTo(y.col * rows + y.row));
             var depthInCol = 0;
             var lastCol = -1;
+            var isPartOfMatch = true;
             for (int i = emptySlots.Count - 1; i >= 0; i--)
             {
                 if (emptySlots[i].col != lastCol)
@@ -88,17 +89,34 @@ namespace Match3.General
                     depthInCol = 0;
                 }
 
-                _gridGenerator.SetElementAmount(emptySlots[i].row, emptySlots[i].col);
+                isPartOfMatch = true;
+                while (isPartOfMatch)
+                {
+                    isPartOfMatch= _gridGenerator.SetElementAmount(emptySlots[i].row, emptySlots[i].col);
+                }
+              
                 _moveEffects.ApplySpawnEffect(emptySlots[i], depthInCol);
                 depthInCol++;
             }
 
+            await CheckForDelay();
+            if (_shuffleController.OnShuffleNeedCheck())
+                return;
+            _testEventController.onNextMovePossible.Trigger();
+        }
+
+        async Task CheckForDelay()
+        {
+            if (IsNonGraphicalTest())
+                return;
             _eventController.onInputEnable.Trigger(false);
             await Task.Delay((int)(1000 * _moveEffectsModel.spawnPeriod));
             _eventController.onInputEnable.Trigger(true);
-            if(_shuffleController.OnShuffleNeedCheck())
-                return;
-            _testEventController.onNextMovePossible.Trigger();
+        }
+
+        bool IsNonGraphicalTest()
+        {
+            return _testEventController.onNonGraphicalTestRunningRequest.GetFirstResult();
         }
 
         private void OnAfterDrop()
@@ -131,15 +149,17 @@ namespace Match3.General
                 return;
             }
 
-            await ApplySwipeViewEffect(_grid[info.row, info.col], _grid[element.x, element.y]);
+            if (!IsNonGraphicalTest())
+                await ApplySwipeViewEffect(_grid[info.row, info.col], _grid[element.x, element.y]);
             _matchChecker.CheckNeedToCheckElementsForMatch();
         }
 
         async Task ApplySwipeViewEffect(TileGridElement first, TileGridElement second)
         {
-            _eventController.onInputEnable.Trigger(false);
             await _moveEffects.SwapElements(first, second);
-            await Task.Delay(300);
+
+            _eventController.onInputEnable.Trigger(false);
+            await Task.Delay((int)(1000*_moveEffectsModel.shuffleDelayPeriod));
             _eventController.onInputEnable.Trigger(true);
         }
 
@@ -178,13 +198,13 @@ namespace Match3.General
 
         private void OnShuffleRequest()
         {
-          _shuffleController.ShuffleGrid();
+            _shuffleController.ShuffleGrid();
         }
 
         private async void OnGridCreateRequest()
         {
             _grid = _gridGenerator.CreateGrid();
-            if(_shuffleController.OnShuffleNeedCheck())
+            if (_shuffleController.OnShuffleNeedCheck())
                 return;
             _testEventController.onNextMovePossible.Trigger();
         }
@@ -205,8 +225,6 @@ namespace Match3.General
             _eventController.Dispose();
             GC.SuppressFinalize(this);
         }
-
-      
 
         #endregion
     }

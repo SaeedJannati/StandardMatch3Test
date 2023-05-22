@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Match3.Auxiliary;
 using Match3.EventController;
 using UnityEngine;
@@ -17,7 +18,7 @@ namespace Match3.General.MoveTest
         private bool _isNextMovePossible;
         private bool _isTestEnable;
         private int _remainingMoves;
-
+        private float time;
         #endregion
 
         #region Methods
@@ -40,6 +41,8 @@ namespace Match3.General.MoveTest
             _eventController.onTestEnable.Add(OnTestEnable);
             _eventController.onNextMovePossible.Add(OnNextMovePossible);
             _eventController.onTestBegin.Add(OnTestBegin);
+            _eventController.onNonGraphicalTestRunningRequest.Add(OnNonGraphicalTestRunningRequest);
+            _eventController.onTestFinish.Add(OnTestFinish);
         }
 
         public void UnregisterFromEvents()
@@ -48,6 +51,23 @@ namespace Match3.General.MoveTest
             _eventController.onTestEnable.Remove(OnTestEnable);
             _eventController.onNextMovePossible.Remove(OnNextMovePossible);
             _eventController.onTestBegin.Remove(OnTestBegin);
+            _eventController.onNonGraphicalTestRunningRequest.Remove(OnNonGraphicalTestRunningRequest);
+            _eventController.onTestFinish.Remove(OnTestFinish);
+            
+        }
+
+        private void OnTestFinish()
+        {
+            time = Time.time-time;
+            GameLogger.Log($"End|Duration:{time}");
+            _gridEventController.onUpdateTileColours.Trigger();
+        }
+
+        private bool OnNonGraphicalTestRunningRequest()
+        {
+            if (!_isTestEnable)
+                return false;
+            return !_model.isGraphicalTest;
         }
 
 
@@ -55,16 +75,20 @@ namespace Match3.General.MoveTest
         {
             _remainingMoves = _model.testMoveCount;
             OnNextMovePossible();
+            time = Time.time;
+            GameLogger.Log($"Begin|MoveCount:{_model.testMoveCount}");
         }
 
-        private void OnNextMovePossible()
+        private async void OnNextMovePossible()
         {
             if (!_isTestEnable)
                 return;
             if(CheckForTestEnd())
                 return;
+            await Task.Delay(1);
+            
             _gridEventController.onRandomMoveRequest.Trigger();
-            GameLogger.Log($"Remaining Moves:{_remainingMoves}");
+            // GameLogger.Log($"Remaining Moves:{_remainingMoves}");
             _remainingMoves--;
         }
 

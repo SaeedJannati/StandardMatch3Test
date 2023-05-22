@@ -51,21 +51,29 @@ namespace Match3.General
 
         void FillTheGrid()
         {
+            var isPartOfMatch = true;
             for (int i = 0; i < _grid.rows; i++)
             {
                 for (int j = 0; j < _grid.columns; j++)
                 {
-                    SetElementAmount(i, j);
+                    isPartOfMatch = true;
+                    while (isPartOfMatch)
+                    {
+                        isPartOfMatch= SetElementAmount(i, j);
+                    }
                 }
             }
         }
 
-        public void SetElementAmount(int row, int col)
+        public bool SetElementAmount(int row, int col)
         {
             var amount = GetRandomAmount();
             _grid[row, col].SetValue(amount, false);
-            if (_matchChecker.IsPartOfMatch(row, col))
-                SetElementAmount(row, col);
+            return _matchChecker.IsPartOfMatch(row, col);
+            // if (_matchChecker.IsPartOfMatch(row, col))
+            // {
+            //     SetElementAmount(row, col);
+            // }
         }
 
 

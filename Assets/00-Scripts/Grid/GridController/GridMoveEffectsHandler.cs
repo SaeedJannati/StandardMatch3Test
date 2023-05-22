@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using DG.Tweening;
-using Match3.Auxiliary;
 using Match3.EventController;
+using Match3.General.MoveTest;
 using UnityEngine;
 using Zenject;
 
@@ -14,6 +14,7 @@ namespace Match3.General
 
         [Inject] private GridMoveEffectsModel _model;
         [Inject] private GridControllerEventController _eventController;
+        [Inject] private MoveTestEventController _testEventController;
         private TilesGrid _grid;
 
         #endregion
@@ -45,6 +46,14 @@ namespace Match3.General
 
         private async void OnShuffleEffectRequest()
         {
+            await ShuffleGraphicalEffect();
+            _eventController.onAfterShuffle.Trigger();
+        }
+
+        async Task ShuffleGraphicalEffect()
+        {
+            if(IsNonGraphicalTest())
+                return;
             _eventController.onInputEnable.Trigger(false);
             var fadePeriod = _model.shuffleFadePeriod;
             _eventController.onFadeGridRequest.Trigger((true, fadePeriod));
@@ -58,11 +67,12 @@ namespace Match3.General
             _eventController.onFadeGridRequest.Trigger((false, fadePeriod));
             await Task.Delay((int)(1000 * fadePeriod));
             _eventController.onInputEnable.Trigger(true);
-            _eventController.onAfterShuffle.Trigger();
         }
 
         async void OnDropEffectRequest((TileGridElement elemnetToDrop, TileGridElement destElement) info)
         {
+            if(IsNonGraphicalTest())
+                return;
             var period = _model.dropPeriod;
             var view = _eventController.onRequestTileView.GetFirstNonDefaultResult(info.elemnetToDrop);
             var dest = _eventController.onRequestTileView.GetFirstNonDefaultResult(info.destElement);
@@ -81,6 +91,8 @@ namespace Match3.General
 
         private async void OnTileViewFadeRequest(TileGridElement element)
         {
+            if(IsNonGraphicalTest())
+                return;
             var period = _model.tileFadePeriod;
             var view = _eventController.onRequestTileView.GetFirstNonDefaultResult(element);
             view.spriteRenderer.DOColor(Color.black, period);
@@ -96,6 +108,16 @@ namespace Match3.General
 
         public async Task SwapElements(TileGridElement firstElement, TileGridElement secondElement)
         {
+            await SwapElementsGraphicalEffects(firstElement,secondElement);
+            _eventController.onElementValueChange.Trigger((firstElement.row, firstElement.col, firstElement.value));
+            _eventController.onElementValueChange.Trigger((secondElement.row, secondElement.col, secondElement.value));
+            await Task.Yield();
+        }
+
+        public async Task SwapElementsGraphicalEffects(TileGridElement firstElement, TileGridElement secondElement)
+        {
+            if(IsNonGraphicalTest())
+                return;
             var first = _eventController.onRequestTileView.GetFirstNonDefaultResult(firstElement).transform;
             var second = _eventController.onRequestTileView.GetFirstNonDefaultResult(secondElement).transform;
             var firstInitPos = first.position;
@@ -106,9 +128,6 @@ namespace Match3.General
             await Task.Delay((int)(1000 * period));
             first.position = firstInitPos;
             second.position = secondInitPos;
-            _eventController.onElementValueChange.Trigger((firstElement.row, firstElement.col, firstElement.value));
-            _eventController.onElementValueChange.Trigger((secondElement.row, secondElement.col, secondElement.value));
-            await Task.Yield();
         }
 
         public async Task GridCreationEffect()
@@ -122,6 +141,9 @@ namespace Match3.General
 
         public async  void ApplySpawnEffect(TileGridElement element,int depthInCol)
         {
+
+            if(IsNonGraphicalTest())
+                return;
             _eventController.onElementValueChange.Trigger((element.row, element.col, element.value));
             var period = _model.spawnPeriod;
             var view = _eventController.onRequestTileView.GetFirstNonDefaultResult(element);
@@ -138,6 +160,12 @@ namespace Match3.General
             UnregisterFromEvents();
             GC.SuppressFinalize(this);
         }
+
+        bool IsNonGraphicalTest()
+        {
+            return _testEventController.onNonGraphicalTestRunningRequest.GetFirstResult();
+        }
+
         #endregion
 
 
