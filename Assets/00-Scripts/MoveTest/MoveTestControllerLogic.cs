@@ -60,7 +60,7 @@ namespace Match3.General.MoveTest
         {
             time = Time.time-time;
             GameLogger.Log($"End|Duration:{time}");
-            _gridEventController.onUpdateTileColours.Trigger();
+            _gridEventController.onUpdateTilesColours.Trigger();
         }
 
         private bool OnNonGraphicalTestRunningRequest()
@@ -86,9 +86,7 @@ namespace Match3.General.MoveTest
             if(CheckForTestEnd())
                 return;
             await Task.Delay(1);
-            
             _gridEventController.onRandomMoveRequest.Trigger();
-            // GameLogger.Log($"Remaining Moves:{_remainingMoves}");
             _remainingMoves--;
         }
 

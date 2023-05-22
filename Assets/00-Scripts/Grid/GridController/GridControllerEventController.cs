@@ -23,6 +23,6 @@ namespace Match3.General
         public readonly ListEvent<(bool fade,float period)> onFadeGridRequest= new();
         public readonly SimpleEvent onRandomMoveRequest=new();
         public readonly  ListFuncEvent<TileGridElement,(bool possible,Direction swipeDirection)> onCheckForPossibleMove=new();
-        public readonly SimpleEvent onUpdateTileColours=new();
+        public readonly SimpleEvent onUpdateTilesColours=new();
     }
 }

@@ -1,4 +1,9 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Match3.Auxiliary;
 using Match3.EventController;
 using Zenject;
 
@@ -12,7 +17,7 @@ namespace Match3.General
         [Inject] private GridGeneratorModel _model;
         [Inject] private MatchChecker _matchChecker;
         private TilesGrid _grid;
-
+        private List<int> possibleColours;
         #endregion
 
         #region Properties
@@ -27,13 +32,14 @@ namespace Match3.General
         void Initialise()
         {
             RegisterToEvents();
+            FillThePossibleValues();
         }
 
-        public TilesGrid CreateGrid()
+        public  TilesGrid CreateGrid()
         {
             _grid = new TilesGrid(_model.rowCount, _model.coloumnCount);
             _matchChecker.SetGrid(_grid);
-            FillTheGrid();
+             FillTheGrid();
             _eventController.onGridCreated.Trigger();
             _eventController.onInputEnable.Trigger(true);
             return _grid;
@@ -49,33 +55,34 @@ namespace Match3.General
             return _grid;
         }
 
-        void FillTheGrid()
+         void FillTheGrid()
         {
-            var isPartOfMatch = true;
             for (int i = 0; i < _grid.rows; i++)
             {
                 for (int j = 0; j < _grid.columns; j++)
                 {
-                    isPartOfMatch = true;
-                    while (isPartOfMatch)
-                    {
-                        isPartOfMatch= SetElementAmount(i, j);
-                    }
+                    SetElementAmount(i, j);
                 }
             }
         }
 
-        public bool SetElementAmount(int row, int col)
-        {
-            var amount = GetRandomAmount();
-            _grid[row, col].SetValue(amount, false);
-            return _matchChecker.IsPartOfMatch(row, col);
-            // if (_matchChecker.IsPartOfMatch(row, col))
-            // {
-            //     SetElementAmount(row, col);
-            // }
-        }
+         void FillThePossibleValues()
+         {
+             possibleColours=Enumerable.Range(0, _model.colourCount).ToList();
+             
+         }
 
+         public void SetElementAmount(int row, int col)
+         {
+             possibleColours.Shuffle();
+             foreach (var amount in possibleColours)
+             {
+                 _grid[row, col].SetValue(amount, false);
+                 if (!_matchChecker.IsPartOfMatch(row, col))
+                     return;
+             }
+            
+        }
 
 
         void FillTheGridWithMockData()
@@ -95,6 +102,7 @@ namespace Match3.General
             UnregisterFromEvents();
             GC.SuppressFinalize(this);
         }
+
         public void RegisterToEvents()
         {
             _eventController.onGridRequest.Add(OnGridRequest);
@@ -104,9 +112,9 @@ namespace Match3.General
         {
             _eventController.onGridRequest.Remove(OnGridRequest);
         }
-        private TilesGrid OnGridRequest() => _grid;
-        #endregion
 
-  
+        private TilesGrid OnGridRequest() => _grid;
+
+        #endregion
     }
 }

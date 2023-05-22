@@ -46,6 +46,7 @@ namespace Match3.General
             _eventController.onFillEmptySlotsRequest.Add(OnFillEmptySlotsRequest);
             _eventController.onCreateMockGridRequest.Add(OnCreateMockGridRequest);
             _eventController.onAfterShuffle.Add(OnAfterShuffle);
+            _eventController.onUpdateTilesColours.Add(OnUpdateTilesColours);
         }
 
         public void UnregisterFromEvents()
@@ -60,6 +61,15 @@ namespace Match3.General
             _eventController.onFillEmptySlotsRequest.Remove(OnFillEmptySlotsRequest);
             _eventController.onCreateMockGridRequest.Remove(OnCreateMockGridRequest);
             _eventController.onAfterShuffle.Remove(OnAfterShuffle);
+            _eventController.onUpdateTilesColours.Remove(OnUpdateTilesColours);
+        }
+
+        private void OnUpdateTilesColours()
+        {
+            foreach (var element in _grid.elements)
+            {
+                _eventController.onElementValueChange.Trigger((element.row, element.col, element.value));
+            }
         }
 
         private void OnAfterShuffle()
@@ -89,12 +99,10 @@ namespace Match3.General
                     depthInCol = 0;
                 }
 
-                isPartOfMatch = true;
-                while (isPartOfMatch)
-                {
-                    isPartOfMatch= _gridGenerator.SetElementAmount(emptySlots[i].row, emptySlots[i].col);
-                }
-              
+
+                _gridGenerator.SetElementAmount(emptySlots[i].row, emptySlots[i].col);
+
+
                 _moveEffects.ApplySpawnEffect(emptySlots[i], depthInCol);
                 depthInCol++;
             }
@@ -159,7 +167,7 @@ namespace Match3.General
             await _moveEffects.SwapElements(first, second);
 
             _eventController.onInputEnable.Trigger(false);
-            await Task.Delay((int)(1000*_moveEffectsModel.shuffleDelayPeriod));
+            await Task.Delay((int)(1000 * _moveEffectsModel.shuffleDelayPeriod));
             _eventController.onInputEnable.Trigger(true);
         }
 
@@ -201,9 +209,9 @@ namespace Match3.General
             _shuffleController.ShuffleGrid();
         }
 
-        private async void OnGridCreateRequest()
+        private  void OnGridCreateRequest()
         {
-            _grid = _gridGenerator.CreateGrid();
+            _grid =  _gridGenerator.CreateGrid();
             if (_shuffleController.OnShuffleNeedCheck())
                 return;
             _testEventController.onNextMovePossible.Trigger();
