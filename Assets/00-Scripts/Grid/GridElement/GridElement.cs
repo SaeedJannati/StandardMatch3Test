@@ -15,7 +15,7 @@ namespace Match3.General
         [field: SerializeField] public SpriteRenderer spriteRenderer { get; private set; }
 
         [Inject] private GridControllerEventController _gridEventController;
-        [Inject] private GridGeneratorViewModel _model;
+        [Inject] private GridGeneratorModel _generatorModel;
         public int row;
         public int col;
 
@@ -103,7 +103,7 @@ namespace Match3.General
                 return;
             var colour = Color.black;
             if (info.value >= 0)
-                colour =_model.colours[info.value];
+                colour =_generatorModel.colours[info.value];
             SetColour(colour);
         }
 
@@ -111,7 +111,7 @@ namespace Match3.General
 
         #region Factory
 
-        public class Factory : PlaceholderFactory<int, int, GridControllerEventController, GridGeneratorViewModel,
+        public class Factory : PlaceholderFactory<int, int, GridControllerEventController, GridGeneratorModel,
             GridElement>
         {
         }

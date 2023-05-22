@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf2faae9242094145908c3d0f657f39b, type: 3}
   m_Name: MoveTestControllerModel
   m_EditorClassIdentifier: 
+  <isGraphicalTest>k__BackingField: 1
   <testMoveCount>k__BackingField: 5

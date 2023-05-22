@@ -34,7 +34,6 @@ namespace Match3.General
         void CreateMockGrid()
         {
             _eventController.onCreateMockGridRequest.Trigger();
-            PrintGrid();
         }
 
         [Button]
@@ -48,7 +47,6 @@ namespace Match3.General
         void PrintGrid()
         {
             var grid = _eventController.onGridRequest.GetFirstResult();
-            GameLogger.Log(grid.ToString());
         }
 
         [Button]

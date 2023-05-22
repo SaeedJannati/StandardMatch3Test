@@ -26,7 +26,7 @@ namespace Match3.Installers
         private void BindFactories()
         {
             Container.BindFactory
-                    <int, int, GridControllerEventController,GridGeneratorViewModel, GridElement, GridElement.Factory>()
+                    <int, int, GridControllerEventController,GridGeneratorModel, GridElement, GridElement.Factory>()
                 .FromComponentInNewPrefab(_model.gridElementPrefab);
         }
 

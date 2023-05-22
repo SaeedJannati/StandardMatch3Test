@@ -23,7 +23,8 @@ namespace Match3.General
         [Inject] private MoveTestEventController _testEventController;
         private TilesGrid _grid;
         private bool _inputEnabled;
-
+//this will only be used in editor window
+        public static Action onCreateGridRequest;
         #endregion
 
         #region Methods
@@ -47,6 +48,7 @@ namespace Match3.General
             _eventController.onCreateMockGridRequest.Add(OnCreateMockGridRequest);
             _eventController.onAfterShuffle.Add(OnAfterShuffle);
             _eventController.onUpdateTilesColours.Add(OnUpdateTilesColours);
+            onCreateGridRequest += OnGridCreateRequest;
         }
 
         public void UnregisterFromEvents()
@@ -62,6 +64,7 @@ namespace Match3.General
             _eventController.onCreateMockGridRequest.Remove(OnCreateMockGridRequest);
             _eventController.onAfterShuffle.Remove(OnAfterShuffle);
             _eventController.onUpdateTilesColours.Remove(OnUpdateTilesColours);
+            onCreateGridRequest -= OnGridCreateRequest;
         }
 
         private void OnUpdateTilesColours()

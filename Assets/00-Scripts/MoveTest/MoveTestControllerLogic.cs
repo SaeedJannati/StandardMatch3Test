@@ -19,6 +19,9 @@ namespace Match3.General.MoveTest
         private bool _isTestEnable;
         private int _remainingMoves;
         private float time;
+
+        //this will only be used by editor window
+        public static Action onTestRun;
         #endregion
 
         #region Methods
@@ -43,6 +46,8 @@ namespace Match3.General.MoveTest
             _eventController.onTestBegin.Add(OnTestBegin);
             _eventController.onNonGraphicalTestRunningRequest.Add(OnNonGraphicalTestRunningRequest);
             _eventController.onTestFinish.Add(OnTestFinish);
+            
+  
         }
 
         public void UnregisterFromEvents()
@@ -53,13 +58,14 @@ namespace Match3.General.MoveTest
             _eventController.onTestBegin.Remove(OnTestBegin);
             _eventController.onNonGraphicalTestRunningRequest.Remove(OnNonGraphicalTestRunningRequest);
             _eventController.onTestFinish.Remove(OnTestFinish);
+       
             
         }
 
         private void OnTestFinish()
         {
             time = Time.time-time;
-            GameLogger.Log($"End|Duration:{time}");
+            GameLogger.Log($"End|Duration:{time}",GameLogger.Colours.lightGreen);
             _gridEventController.onUpdateTilesColours.Trigger();
         }
 
@@ -76,7 +82,7 @@ namespace Match3.General.MoveTest
             _remainingMoves = _model.testMoveCount;
             OnNextMovePossible();
             time = Time.time;
-            GameLogger.Log($"Begin|MoveCount:{_model.testMoveCount}");
+            GameLogger.Log($"Begin|MoveCount:{_model.testMoveCount}",GameLogger.Colours.lightGreen);
         }
 
         private async void OnNextMovePossible()

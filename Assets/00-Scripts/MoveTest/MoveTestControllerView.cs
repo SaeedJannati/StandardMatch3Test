@@ -1,5 +1,4 @@
 
-using System;
 using Match3.Auxiliary;
 using Match3.EventController;
 using NaughtyAttributes;
@@ -50,12 +49,12 @@ namespace Match3.General.MoveTest
 
         public void RegisterToEvents()
         {
- 
+            MoveTestControllerLogic.onTestRun += RunTheTest;
         }
 
         public void UnregisterFromEvents()
         {
-    
+            MoveTestControllerLogic.onTestRun -= RunTheTest;
         }
         #endregion
 
